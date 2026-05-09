@@ -1,54 +1,27 @@
-// Service Worker - Daily Photographer Sales
-const CACHE_NAME = 'dps-cache-v1';
-const URLS_TO_CACHE = [
-  '/sales-Photographer/',
-  '/sales-Photographer/index.html'
-];
-
-// تثبيت
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(URLS_TO_CACHE);
-    })
-  );
-  self.skipWaiting();
-});
-
-// تفعيل وحذف الكاش القديم
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-      )
-    )
-  );
-  self.clients.claim();
-});
-
-// الطلبات - Network First ثم Cache
-self.addEventListener('fetch', event => {
-  // تجاهل طلبات Google Sheets (تحتاج إنترنت دائماً)
-  if (event.request.url.includes('script.google.com')) return;
-
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // احفظ نسخة في الكاش
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, clone);
-        });
-        return response;
-      })
-      .catch(() => {
-        // إذا لا إنترنت — خذ من الكاش
-        return caches.match(event.request).then(cached => {
-          if (cached) return cached;
-          // إذا الصفحة الرئيسية
-          return caches.match('/sales-Photographer/index.html');
-        });
-      })
-  );
-});
+{
+  "name": "Daily Photographer Sales",
+  "short_name": "DPS",
+  "description": "Hero Diving Center - Daily Sales System",
+  "start_url": "/dps-app/",
+  "scope": "/dps-app/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0f1e",
+  "theme_color": "#1a73e8",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
