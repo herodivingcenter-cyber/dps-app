@@ -1,0 +1,3200 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a73e8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DPS">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<title>نظام المبيعات المتكامل</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0a0f1e;
+  --bg2: #0f1628;
+  --bg3: #141d35;
+  --bg4: #1a2340;
+  --accent: #3b82f6;
+  --accent2: #60a5fa;
+  --accent3: #93c5fd;
+  --gold: #f59e0b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --text: #e2e8f0;
+  --text-dim: #64748b;
+  --border: rgba(59,130,246,0.15);
+  --glow: 0 0 20px rgba(59,130,246,0.3);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Tajawal', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  direction: rtl;
+  overflow-x: hidden;
+}
+
+/* BACKGROUND */
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(ellipse at 20% 20%, rgba(59,130,246,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 80% 80%, rgba(16,185,129,0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== SETUP SCREEN ===== */
+#setupScreen {
+  position: fixed; inset: 0;
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+  background: #0a1628;
+}
+
+.setup-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 2.5rem;
+  width: 100%; max-width: 480px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5), var(--glow);
+  animation: fadeUp 0.6s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(30px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+.setup-logo {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.setup-logo .icon {
+  width: 72px; height: 72px;
+  background: linear-gradient(135deg, var(--accent), #1d4ed8);
+  border-radius: 20px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 32px;
+  margin-bottom: 1rem;
+  box-shadow: 0 10px 30px rgba(59,130,246,0.4);
+}
+
+.setup-logo h1 { font-size: 1.6rem; font-weight: 900; color: var(--text); }
+.setup-logo p { color: var(--text-dim); font-size: 0.9rem; margin-top: 4px; }
+
+.setup-field { margin-bottom: 1.2rem; }
+.setup-field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.setup-field input, .setup-field select {
+  width: 100%;
+  background: #e8e8e8;
+  border: 1px solid #cccccc;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  color: #222222;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s;
+  direction: rtl;
+}
+
+.setup-field input:focus, .setup-field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+  background: #f0f0f0;
+}
+
+.setup-field input::placeholder { color: #888888; }
+
+.url-hint {
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  font-size: 0.8rem;
+  color: var(--accent3);
+  margin-top: 8px;
+  line-height: 1.6;
+}
+
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent), #1d4ed8);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.5rem;
+  box-shadow: 0 8px 20px rgba(59,130,246,0.3);
+}
+
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(59,130,246,0.4); }
+.btn-primary:active { transform: translateY(0); }
+
+.admin-toggle {
+  text-align: center;
+  margin-top: 1.2rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.admin-toggle a {
+  color: var(--accent2);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ===== MAIN APP ===== */
+#app { display: none; position: relative; z-index: 1; min-height: 100vh; }
+
+/* HEADER */
+header {
+  background: rgba(15,22,40,0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.5rem;
+  height: 65px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+
+.header-left { display: flex; align-items: center; gap: 12px; }
+
+.app-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), #1d4ed8);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+
+.app-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+.app-subtitle { font-size: 0.72rem; color: var(--text-dim); }
+
+.header-right { display: flex; align-items: center; gap: 10px; }
+
+.seller-badge {
+  background: rgba(59,130,246,0.15);
+  border: 1px solid rgba(59,130,246,0.3);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent2);
+  display: flex; align-items: center; gap: 6px;
+}
+
+.btn-logout {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: var(--danger);
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-logout:hover { background: rgba(239,68,68,0.2); }
+
+/* TABS */
+.nav-tabs {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  padding: 0 1.5rem;
+  overflow-x: auto;
+}
+
+.nav-tab {
+  padding: 1rem 1.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--accent2); border-bottom-color: var(--accent); }
+
+/* MAIN CONTENT */
+.content { padding: 1.5rem 2rem; max-width: 100%; margin: 0; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* STATS */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.4rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover { transform: translateY(-3px); box-shadow: var(--glow); }
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: -20px; left: -20px;
+  width: 80px; height: 80px;
+  background: radial-gradient(circle, rgba(59,130,246,0.12), transparent);
+  border-radius: 50%;
+}
+
+.stat-icon { font-size: 1.6rem; margin-bottom: 0.6rem; }
+.stat-val { font-size: 1.9rem; font-weight: 900; color: var(--accent2); line-height: 1; }
+.stat-label { font-size: 0.82rem; color: var(--text-dim); margin-top: 4px; }
+
+/* FORM */
+.form-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent2);
+  margin-bottom: 1.3rem;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 0.8rem; font-weight: 600; color: var(--text-dim); }
+
+.field input, .field select {
+  background: #e8e8e8;
+  border: 1px solid #cccccc;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  color: #222222;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  outline: none;
+  transition: all 0.2s;
+  direction: rtl;
+}
+
+.field input:focus, .field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+  background: #f0f0f0;
+}
+
+/* حقول الأسعار */
+.prices-grid {
+  display: contents; /* على الكمبيوتر تندمج مع form-grid العادية */
+}
+
+.price-input {
+  font-size: 1rem !important;
+  padding: 0.85rem 1rem !important;
+  border-radius: 10px;
+  width: 100%;
+  outline: none;
+  transition: all 0.2s;
+  font-family: 'Tajawal', sans-serif;
+}
+
+.field input::placeholder { color: #888888; }
+
+.btn-submit {
+  background: linear-gradient(135deg, var(--success), #059669);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.9rem 2rem;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.2s;
+  box-shadow: 0 6px 20px rgba(16,185,129,0.3);
+  display: flex; align-items: center; gap: 8px;
+}
+.btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(16,185,129,0.4); }
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* TABLE */
+.table-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.table-top {
+  padding: 1.2rem 1.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; gap: 0.8rem;
+}
+
+.table-top h3 { font-size: 0.95rem; font-weight: 700; color: var(--accent2); display: flex; align-items: center; gap: 6px; }
+
+.search-input {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  color: var(--text);
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.85rem;
+  outline: none;
+  width: 200px;
+  transition: border-color 0.2s;
+  direction: rtl;
+}
+.search-input:focus { border-color: var(--accent); }
+
+.table-wrap { overflow-x: auto; width: 100%; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+thead tr { background: var(--bg3); }
+thead th {
+  padding: 1rem 1.1rem;
+  text-align: right;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  background: var(--bg3);
+  z-index: 10;
+}
+
+tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.15s; }
+tbody tr:hover { background: var(--bg3); }
+tbody td { padding: 0.9rem 1.1rem; font-size: 0.88rem; white-space: nowrap; }
+
+.chip {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+.chip-blue { background: rgba(59,130,246,0.15); color: var(--accent2); border: 1px solid rgba(59,130,246,0.25); }
+.chip-green { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+.chip-gold { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+
+.amount { font-weight: 700; color: var(--gold); }
+
+.empty-msg {
+  text-align: center;
+  padding: 3.5rem;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+.empty-msg .e-icon { font-size: 2.5rem; display: block; margin-bottom: 0.8rem; opacity: 0.4; }
+
+/* CHARTS */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.chart-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.5rem;
+}
+
+.chart-card h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent2);
+  margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* LOADING */
+.loading {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--text-dim); font-size: 0.85rem;
+}
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 2rem; left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  padding: 0.8rem 1.8rem;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  z-index: 9999;
+  transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+  pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { background: linear-gradient(135deg, var(--success), #059669); color: white; box-shadow: 0 10px 30px rgba(16,185,129,0.4); }
+.toast.error { background: linear-gradient(135deg, var(--danger), #dc2626); color: white; box-shadow: 0 10px 30px rgba(239,68,68,0.4); }
+
+/* SYNC STATUS */
+.sync-bar {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.8rem 1.2rem;
+  margin-bottom: 1.2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 0.9rem;
+}
+.sync-status { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 600; }
+.sync-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.sync-dot.connected { background: var(--success); box-shadow: 0 0 10px var(--success); animation: pulse 2s infinite; }
+.sync-dot.local { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+.sync-dot.error { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+.btn-sync {
+  background: rgba(59,130,246,0.15);
+  border: 1px solid rgba(59,130,246,0.3);
+  color: var(--accent2);
+  border-radius: 8px;
+  padding: 4px 12px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-sync:hover { background: rgba(59,130,246,0.25); }
+
+/* ADMIN BADGE */
+.admin-label {
+  background: linear-gradient(135deg, var(--gold), #d97706);
+  color: #000;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+@media (max-width: 768px) {
+  .content { padding: 0.6rem; }
+  .charts-grid { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+  header { padding: 0 0.6rem; }
+  .form-grid { grid-template-columns: 1fr; gap: 0.6rem; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .table-card { padding: 0; border-radius: 12px; }
+  .table-top { padding: 0.8rem 1rem; flex-wrap: wrap; gap: 0.5rem; }
+  table { font-size: 0.78rem; min-width: 600px; }
+  thead th { padding: 0.6rem 0.5rem; font-size: 0.72rem; }
+  tbody td { padding: 0.6rem 0.5rem; }
+  .stat-card { padding: 0.8rem; border-radius: 12px; }
+  .stat-val { font-size: 1.3rem; }
+  .stat-label { font-size: 0.70rem; }
+  .form-card { padding: 0.8rem; border-radius: 12px; }
+  .field input, .field select {
+    padding: 0.55rem 0.75rem !important;
+    font-size: 0.95rem !important;
+    border-radius: 8px;
+  }
+  .field label { font-size: 0.82rem !important; margin-bottom: 3px; }
+  /* شبكة 2×2 لحقول الأسعار على الموبايل */
+  .prices-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    grid-column: 1 / -1;
+  }
+  .prices-grid .field label { font-size: 0.75rem !important; }
+  .price-input {
+    padding: 0.4rem 0.5rem !important;
+    font-size: 0.88rem !important;
+    text-align: center;
+  }
+  .btn-submit { padding: 0.75rem 1rem; font-size: 0.88rem; }
+  .app-title { font-size: 0.82rem; }
+  .nav-tabs { gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+  .nav-tab { font-size: 0.70rem; padding: 0.6rem 0.6rem; white-space: nowrap; }
+  .header-right { gap: 0.3rem; }
+}
+
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .content { padding: 0.4rem; }
+  .form-grid { grid-template-columns: 1fr; gap: 0.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== SETUP SCREEN ===== -->
+<div id="setupScreen" style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;overflow:hidden;">
+
+  <!-- خلفية المناظر السياحية -->
+  <div style="position:absolute;inset:0;overflow:hidden;">
+    <svg width="100%" height="100%" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+
+      <!-- Sky gradient -->
+      <defs>
+        <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0a1628"/>
+          <stop offset="40%" stop-color="#1a2f5e"/>
+          <stop offset="100%" stop-color="#2d4a8a"/>
+        </linearGradient>
+        <linearGradient id="seaG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1e6091"/>
+          <stop offset="100%" stop-color="#0d3d6b"/>
+        </linearGradient>
+        <linearGradient id="sunG" cx="50%" cy="50%" r="50%" fx="50%" fy="50%" gradientUnits="objectBoundingBox" id="sunGlow">
+          <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.9"/>
+          <stop offset="60%" stop-color="#f59e0b" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="goldG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#c9a84c"/>
+          <stop offset="100%" stop-color="#8b6914"/>
+        </linearGradient>
+        <linearGradient id="sandG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#d4a843"/>
+          <stop offset="100%" stop-color="#a07830"/>
+        </linearGradient>
+        <filter id="blur2">
+          <feGaussianBlur stdDeviation="2"/>
+        </filter>
+      </defs>
+
+      <!-- Sky -->
+      <rect width="1400" height="900" fill="url(#skyG)"/>
+
+      <!-- Stars -->
+      <circle cx="120" cy="60" r="1.2" fill="white" opacity="0.8"/>
+      <circle cx="300" cy="30" r="1" fill="white" opacity="0.6"/>
+      <circle cx="500" cy="80" r="1.5" fill="white" opacity="0.7"/>
+      <circle cx="700" cy="20" r="1" fill="white" opacity="0.9"/>
+      <circle cx="900" cy="55" r="1.2" fill="white" opacity="0.6"/>
+      <circle cx="1100" cy="35" r="1" fill="white" opacity="0.8"/>
+      <circle cx="1300" cy="70" r="1.5" fill="white" opacity="0.5"/>
+      <circle cx="200" cy="110" r="0.8" fill="white" opacity="0.7"/>
+      <circle cx="450" cy="40" r="1" fill="white" opacity="0.6"/>
+      <circle cx="850" cy="90" r="1.2" fill="white" opacity="0.8"/>
+      <circle cx="1050" cy="15" r="0.9" fill="white" opacity="0.7"/>
+      <circle cx="1250" cy="100" r="1" fill="white" opacity="0.5"/>
+      <circle cx="650" cy="130" r="0.8" fill="white" opacity="0.6"/>
+      <circle cx="80" cy="150" r="1" fill="white" opacity="0.5"/>
+      <circle cx="1350" cy="45" r="1.2" fill="white" opacity="0.7"/>
+
+      <!-- Moon -->
+      <circle cx="1100" cy="90" r="35" fill="#f0e6c8" opacity="0.9"/>
+      <circle cx="1115" cy="78" r="30" fill="#2d4a8a"/>
+
+      <!-- Sun glow on horizon -->
+      <ellipse cx="700" cy="480" rx="200" ry="80" fill="#f59e0b" opacity="0.15"/>
+      <ellipse cx="700" cy="480" rx="100" ry="40" fill="#f59e0b" opacity="0.2"/>
+
+      <!-- ===== PYRAMIDS (Egypt) ===== -->
+      <!-- Pyramid 1 - big -->
+      <polygon points="80,480 230,280 380,480" fill="#c4973a" opacity="0.95"/>
+      <polygon points="80,480 230,280 230,480" fill="#a07830" opacity="0.95"/>
+      <!-- Pyramid 2 - medium -->
+      <polygon points="320,480 430,320 540,480" fill="#c4973a" opacity="0.9"/>
+      <polygon points="320,480 430,320 430,480" fill="#a07830" opacity="0.9"/>
+      <!-- Pyramid 3 - small -->
+      <polygon points="490,480 570,360 650,480" fill="#c4973a" opacity="0.85"/>
+      <polygon points="490,480 570,360 570,480" fill="#a07830" opacity="0.85"/>
+      <!-- Sphinx silhouette -->
+      <ellipse cx="170" cy="480" rx="60" ry="20" fill="#b08028"/>
+      <rect x="140" y="460" width="80" height="20" rx="5" fill="#b08028"/>
+      <ellipse cx="220" cy="455" rx="22" ry="25" fill="#c4973a"/>
+      <!-- Sand dunes -->
+      <ellipse cx="200" cy="482" rx="180" ry="15" fill="#d4a843" opacity="0.7"/>
+
+      <!-- ===== SEA / OCEAN ===== -->
+      <rect x="0" y="480" width="1400" height="420" fill="url(#seaG)"/>
+
+      <!-- Sea shimmer lines -->
+      <path d="M0 510 Q350 500 700 515 Q1050 530 1400 510" stroke="#4a90d9" stroke-width="1" fill="none" opacity="0.3"/>
+      <path d="M0 540 Q350 525 700 545 Q1050 560 1400 540" stroke="#4a90d9" stroke-width="0.8" fill="none" opacity="0.2"/>
+      <path d="M0 570 Q350 555 700 572 Q1050 585 1400 570" stroke="#7ab8e8" stroke-width="1" fill="none" opacity="0.25"/>
+      <path d="M0 600 Q350 588 700 602 Q1050 618 1400 600" stroke="#7ab8e8" stroke-width="0.8" fill="none" opacity="0.2"/>
+
+      <!-- Moon reflection on sea -->
+      <ellipse cx="1100" cy="520" rx="15" ry="60" fill="#f0e6c8" opacity="0.1"/>
+      <ellipse cx="1100" cy="580" rx="8" ry="20" fill="#f0e6c8" opacity="0.08"/>
+
+      <!-- ===== EIFFEL TOWER (Paris) - Right side ===== -->
+      <!-- Base legs -->
+      <path d="M1150 480 L1180 380 L1200 380 L1175 480Z" fill="#8a9baa" opacity="0.9"/>
+      <path d="M1280 480 L1250 380 L1230 380 L1255 480Z" fill="#7a8b9a" opacity="0.9"/>
+      <!-- Middle sections -->
+      <rect x="1182" y="340" width="66" height="42" fill="#8a9baa" opacity="0.9"/>
+      <rect x="1190" y="290" width="50" height="52" fill="#9aaabb" opacity="0.85"/>
+      <rect x="1198" y="250" width="34" height="42" fill="#aabbc8" opacity="0.85"/>
+      <!-- Spire -->
+      <polygon points="1215,180 1205,250 1225,250" fill="#bcccd8" opacity="0.9"/>
+      <!-- Horizontal cross beams -->
+      <rect x="1175" y="375" width="80" height="5" fill="#7a8b9a" opacity="0.8"/>
+      <rect x="1183" y="338" width="64" height="4" fill="#8a9baa" opacity="0.8"/>
+      <rect x="1192" y="288" width="46" height="3" fill="#9aaabb" opacity="0.8"/>
+      <!-- Tower light -->
+      <circle cx="1215" cy="178" r="4" fill="#f59e0b" opacity="0.9"/>
+      <ellipse cx="1215" cy="178" rx="12" ry="20" fill="#f59e0b" opacity="0.15"/>
+
+      <!-- ===== VENETIAN GONDOLA ===== -->
+      <!-- Water ripples -->
+      <ellipse cx="750" cy="560" rx="100" ry="15" fill="#1e6091" opacity="0.4"/>
+      <!-- Gondola body -->
+      <path d="M660 550 Q680 535 750 535 Q820 535 840 550 Q850 560 840 565 Q750 575 660 565 Q650 560 660 550Z" fill="#1a1a2a"/>
+      <!-- Gondola front -->
+      <path d="M840 552 Q860 545 870 550 Q860 555 845 560Z" fill="#2a2a3a"/>
+      <!-- Gondolier -->
+      <rect x="745" y="518" width="8" height="25" rx="2" fill="#c9a84c"/>
+      <circle cx="749" cy="514" r="6" fill="#d4b896"/>
+      <!-- Pole -->
+      <line x1="760" y1="500" x2="755" y2="545" stroke="#c9a84c" stroke-width="2"/>
+      <!-- Passengers canopy -->
+      <rect x="685" y="522" width="50" height="18" rx="4" fill="#8b1a1a" opacity="0.8"/>
+      <rect x="683" y="518" width="54" height="5" rx="2" fill="#c02020" opacity="0.7"/>
+
+      <!-- ===== SAILBOATS ===== -->
+      <!-- Boat 1 -->
+      <path d="M400 520 Q420 510 440 520 L440 545 L400 545Z" fill="#2a3a5a"/>
+      <polygon points="420,480 410,520 430,520" fill="white" opacity="0.9"/>
+      <polygon points="420,480 430,520 445,510" fill="#e8d5b0" opacity="0.7"/>
+      <!-- Boat 2 -->
+      <path d="M900 530 Q915 522 930 530 L930 550 L900 550Z" fill="#2a3a5a"/>
+      <polygon points="915,495 907,530 923,530" fill="white" opacity="0.9"/>
+      <!-- Boat 3 small -->
+      <path d="M550 555 Q560 549 570 555 L570 568 L550 568Z" fill="#3a4a6a"/>
+      <polygon points="560,535 554,555 566,555" fill="white" opacity="0.8"/>
+
+      <!-- ===== PALM TREES ===== -->
+      <!-- Palm 1 -->
+      <path d="M50 480 Q55 420 60 380" stroke="#4a3520" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <ellipse cx="55" cy="375" rx="30" ry="12" fill="#2d6a2d" transform="rotate(-20 55 375)"/>
+      <ellipse cx="40" cy="382" rx="28" ry="10" fill="#3a7a3a" transform="rotate(-40 40 382)"/>
+      <ellipse cx="72" cy="378" rx="28" ry="10" fill="#2d6a2d" transform="rotate(30 72 378)"/>
+      <ellipse cx="60" cy="368" rx="25" ry="9" fill="#4a8a4a" transform="rotate(-10 60 368)"/>
+
+      <!-- Palm 2 -->
+      <path d="M1380 480 Q1375 430 1370 395" stroke="#4a3520" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <ellipse cx="1372" cy="390" rx="28" ry="11" fill="#2d6a2d" transform="rotate(20 1372 390)"/>
+      <ellipse cx="1388" cy="396" rx="26" ry="9" fill="#3a7a3a" transform="rotate(40 1388 396)"/>
+      <ellipse cx="1358" cy="393" rx="26" ry="9" fill="#2d6a2d" transform="rotate(-30 1358 393)"/>
+
+      <!-- ===== DIVING EQUIPMENT hint ===== -->
+      <!-- Diver silhouette underwater -->
+      <ellipse cx="600" cy="640" rx="18" ry="8" fill="#1a4a7a" opacity="0.5"/>
+      <circle cx="600" cy="632" r="7" fill="#1a4a7a" opacity="0.4"/>
+      <!-- Bubbles -->
+      <circle cx="598" cy="618" r="3" fill="#4a90d9" opacity="0.3"/>
+      <circle cx="605" cy="605" r="2" fill="#4a90d9" opacity="0.25"/>
+      <circle cx="595" cy="595" r="1.5" fill="#4a90d9" opacity="0.2"/>
+
+      <!-- ===== ARABIC LANTERNS ===== -->
+      <!-- Lantern 1 -->
+      <path d="M350 200 L358 200 Q365 215 362 235 Q358 255 350 260 Q342 255 338 235 Q335 215 342 200Z" fill="#c9a84c" opacity="0.7"/>
+      <line x1="354" y1="190" x2="354" y2="200" stroke="#c9a84c" stroke-width="2"/>
+      <ellipse cx="354" cy="195" rx="6" ry="4" fill="#c9a84c" opacity="0.8"/>
+      <circle cx="354" cy="230" r="5" fill="#f59e0b" opacity="0.6"/>
+
+      <!-- Lantern 2 -->
+      <path d="M1050 160 L1057 160 Q1063 173 1060 190 Q1057 207 1050 212 Q1043 207 1040 190 Q1037 173 1043 160Z" fill="#c9a84c" opacity="0.6"/>
+      <line x1="1053" y1="151" x2="1053" y2="160" stroke="#c9a84c" stroke-width="2"/>
+      <circle cx="1053" cy="186" r="4" fill="#f59e0b" opacity="0.5"/>
+
+      <!-- ===== HORIZON GLOW ===== -->
+      <rect x="0" y="470" width="1400" height="20" fill="#c9a84c" opacity="0.08"/>
+
+      <!-- ===== OVERLAY for readability ===== -->
+      <rect width="1400" height="900" fill="#0a1628" opacity="0.45"/>
+
+    </svg>
+  </div>
+
+  <!-- Login glass card -->
+  <div class="setup-box" style="position:relative;z-index:10;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(10,15,30,0.82);border:1px solid rgba(201,168,76,0.35);box-shadow:0 30px 70px rgba(0,0,0,0.7),inset 0 1px 0 rgba(201,168,76,0.2);">
+    <div class="setup-logo">
+      <div class="icon" style="background:linear-gradient(135deg,#1a1a2e,#16213e);border:2px solid var(--gold);padding:4px;">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Camera body -->
+          <rect x="4" y="13" width="36" height="24" rx="4" fill="#c9a84c" opacity="0.9"/>
+          <!-- Lens outer -->
+          <circle cx="22" cy="25" r="9" fill="#1a1a2e" stroke="#f0c040" stroke-width="1.5"/>
+          <!-- Lens inner -->
+          <circle cx="22" cy="25" r="6" fill="#0a0f1e" stroke="#c9a84c" stroke-width="1"/>
+          <!-- Lens shine -->
+          <circle cx="19.5" cy="22.5" r="1.5" fill="white" opacity="0.4"/>
+          <!-- Flash/viewfinder -->
+          <rect x="8" y="8" width="8" height="5" rx="2" fill="#c9a84c"/>
+          <!-- Shutter button -->
+          <circle cx="34" cy="10" r="3" fill="#f0c040"/>
+          <!-- EGP symbol -->
+          <text x="18" y="29" font-size="8" fill="#f0c040" font-family="Arial" font-weight="bold">ج</text>
+          <!-- Dollar lines -->
+          <line x1="30" y1="17" x2="36" y2="17" stroke="#f0c040" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="30" y1="20" x2="36" y2="20" stroke="#f0c040" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1 style="font-size:1.4rem;letter-spacing:-0.5px;">Daily Photographer</h1>
+      <h2 style="font-size:1rem;color:var(--gold);font-weight:600;margin-top:-4px;">Sales System</h2>
+      <p style="margin-top:6px;">Sign in to continue / سجّل دخولك</p>
+    </div>
+
+    <div id="sellerForm">
+      <div class="setup-field">
+        <label>👤 اسمك (اسم البائع)</label>
+        <input type="text" id="inputSeller" placeholder="أدخل اسمك هنا..." />
+      </div>
+      <div class="setup-field">
+        <label>📧 إيميلك | Your Email <span style="color:#ef4444;">*</span></label>
+        <input type="email" id="inputEmail" placeholder="example@email.com"
+          required
+          oninput="validateEmailField(this)"
+          style="border-color:rgba(239,68,68,0.3);" />
+        <div id="emailError" style="color:#ef4444;font-size:0.78rem;margin-top:4px;display:none;">
+          ⚠️ يرجى إدخال إيميل صحيح (example@email.com)
+        </div>
+      </div>
+      <button class="btn-primary" onclick="loginSeller()">🚀 دخول</button>
+      <div class="admin-toggle">
+        أنت المدير؟ <a onclick="showAdminLogin()">دخول لوحة الإدارة</a>
+      </div>
+    </div>
+
+    <div id="adminForm" style="display:none;">
+      <div class="setup-field">
+        <label>🔐 كلمة مرور المدير</label>
+        <input type="password" id="inputAdminPass" placeholder="أدخل كلمة المرور..." />
+      </div>
+      <button class="btn-primary" onclick="loginAdmin()" style="background: linear-gradient(135deg, var(--gold), #d97706); color:#000;">👑 دخول كمدير</button>
+      <div class="admin-toggle">
+        <a onclick="showSellerForm()">← رجوع</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="app">
+  <header>
+    <div class="header-left">
+      <div class="app-icon" style="background:linear-gradient(135deg,#1a1a2e,#16213e);border:1.5px solid var(--gold);">
+        <svg width="22" height="22" viewBox="0 0 44 44" fill="none">
+          <rect x="4" y="13" width="36" height="24" rx="4" fill="#c9a84c" opacity="0.9"/>
+          <circle cx="22" cy="25" r="9" fill="#1a1a2e" stroke="#f0c040" stroke-width="1.5"/>
+          <circle cx="22" cy="25" r="6" fill="#0a0f1e" stroke="#c9a84c" stroke-width="1"/>
+          <circle cx="19.5" cy="22.5" r="1.5" fill="white" opacity="0.4"/>
+          <rect x="8" y="8" width="8" height="5" rx="2" fill="#c9a84c"/>
+          <circle cx="34" cy="10" r="3" fill="#f0c040"/>
+          <text x="18" y="29" font-size="8" fill="#f0c040" font-family="Arial" font-weight="bold">ج</text>
+        </svg>
+      </div>
+      <div>
+        <div class="app-title">Daily Photographer Sales</div>
+        <div class="app-subtitle" id="headerSubtitle">--</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button id="installBtn" onclick="installApp()" style="display:none;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;border:none;border-radius:10px;padding:0.4rem 0.8rem;font-family:'Tajawal',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;align-items:center;gap:4px;">
+        📲 تثبيت
+      </button>
+      <div class="seller-badge">
+        <span>👤</span>
+        <span id="headerSeller">--</span>
+        <span id="adminBadge" class="admin-label" style="display:none;">مدير</span>
+      </div>
+      <button class="btn-logout" onclick="logout()">خروج</button>
+      <button class="btn-logout" style="background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.3);color:var(--accent2);" onclick="changeAccount()">🔄 تغيير</button>
+    </div>
+  </header>
+
+  <div class="nav-tabs" id="navTabs">
+    <div class="nav-tab active" onclick="switchTab('add', this)">➕ تسجيل بيعة</div>
+    <div class="nav-tab" onclick="switchTab('my', this)">📋 مبيعاتي</div>
+    <div class="nav-tab" onclick="switchTab('stats', this)">📊 إحصائياتي</div>
+    <div class="nav-tab admin-only" onclick="switchTab('all', this)" style="display:none;">🌐 كل المبيعات</div>
+    <div class="nav-tab admin-only" onclick="switchTab('search', this)" style="display:none;">🔍 بحث واستعلام</div>
+    <div class="nav-tab admin-only" onclick="switchTab('reports', this)" style="display:none;">📈 التقارير</div>
+    <div class="nav-tab" onclick="switchTab('settings', this)">⚙️ الإعدادات</div>
+  </div>
+
+  <div class="content">
+
+    <!-- ADD SALE -->
+    <div id="panel-add" class="tab-panel active">
+
+      <div class="sync-bar" id="syncBar" style="display:none;">
+        <div class="sync-status">
+          <div class="sync-dot" id="syncDot"></div>
+          <span id="syncText" style="font-size:0.9rem;font-weight:600;">جاري التحقق...</span>
+        </div>
+        <button class="btn-sync" onclick="checkConnection()">🔄 تحديث</button>
+      </div>
+
+      <div class="form-card">
+        <div class="card-title">➕ تسجيل عملية بيع | New Sale</div>
+        <div class="form-grid" style="gap:1.2rem;">
+          <div class="field">
+            <label style="font-size:0.95rem;font-weight:700;">📅 التاريخ | Date</label>
+            <input type="date" id="fDatePicker"
+              style="background:#e8e8e8;border:1px solid #cccccc;border-radius:10px;padding:0.85rem 1rem;color:#222222;font-family:'Tajawal',sans-serif;font-size:1rem;outline:none;direction:ltr;width:100%;transition:border-color 0.2s;"
+              onfocus="this.style.borderColor='var(--accent)'"
+              onblur="this.style.borderColor='var(--border)'" />
+          </div>
+          <div class="field">
+            <label style="font-size:0.95rem;font-weight:700;">👤 اسم الزبون | Customer Name</label>
+            <input type="text" id="fCustomer" placeholder="Customer name..." style="font-size:1rem;padding:0.85rem 1rem;" />
+          </div>
+          <div class="field">
+            <label style="font-size:0.95rem;font-weight:700;">📞 تليفون الزبون | Phone <span style="color:#ef4444;font-size:0.8rem;">* مطلوب</span></label>
+            <input type="tel" id="fPhone" placeholder="+201234567890" style="font-size:1rem;padding:0.85rem 1rem;" />
+          </div>
+          <div class="field">
+            <label style="font-size:0.95rem;font-weight:700;">📧 إيميل الزبون | Customer Email <span style="color:#ef4444;font-size:0.8rem;">* مطلوب للحفظ</span></label>
+            <input type="email" id="fCustomerEmail" placeholder="customer@email.com"
+              style="font-size:1rem;padding:0.85rem 1rem;"
+              oninput="this.style.borderColor=''"
+              onfocus="this.style.borderColor='var(--accent)'"
+              onblur="this.style.borderColor=''" />
+          </div>
+          <div class="field">
+            <label style="font-size:0.95rem;font-weight:700;">🚢 اسم المركب | Boat Name</label>
+            <select id="fBoat" style="font-size:1rem;padding:0.85rem 1rem;">
+              <option value="">-- Select Boat --</option>
+              <option value="روما">🚢 Roma</option>
+              <option value="ادم">🚢 Adam</option>
+              <option value="سيريانا">🚢 Seriana</option>
+              <option value="ميس شيري">🚢 Miss Sherry</option>
+              <option value="أخرى">🚢 Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label style="font-size:0.95rem;font-weight:700;">🏨 الفندق | Hotel</label>
+            <input type="text" id="fHotel" placeholder="Hotel name..." style="font-size:1rem;padding:0.85rem 1rem;" />
+          </div>
+          <div class="field">
+            <label style="font-size:0.95rem;font-weight:700;">🚪 رقم الغرفة | Room Number</label>
+            <input type="text" id="fRoom" placeholder="Room number..." style="font-size:1rem;padding:0.85rem 1rem;" />
+          </div>
+          <!-- حقول الأسعار في شبكة 2×2 على الموبايل -->
+          <div class="prices-grid">
+            <div class="field">
+              <label style="font-size:0.95rem;font-weight:700;">🇪🇬 سعر جنيه | EGP</label>
+              <input type="number" id="fEGP" placeholder="0.00" min="0" step="0.01" class="price-input" style="background:#fff3cd;border:2px solid #f59e0b;color:#92400e;font-weight:700;" />
+            </div>
+            <div class="field">
+              <label style="font-size:0.95rem;font-weight:700;">🇺🇸 سعر دولار | USD</label>
+              <input type="number" id="fUSD" placeholder="0.00" min="0" step="0.01" class="price-input" style="background:#dbeafe;border:2px solid #3b82f6;color:#1e3a5f;font-weight:700;" />
+            </div>
+            <div class="field">
+              <label style="font-size:0.95rem;font-weight:700;">🇪🇺 سعر يورو | EUR</label>
+              <input type="number" id="fEUR" placeholder="0.00" min="0" step="0.01" class="price-input" style="background:#d1fae5;border:2px solid #10b981;color:#064e3b;font-weight:700;" />
+            </div>
+            <div class="field">
+              <label style="font-size:0.95rem;font-weight:700;">🇬🇧 سعر إسترليني | GBP</label>
+              <input type="number" id="fGBP" placeholder="0.00" min="0" step="0.01" class="price-input" style="background:#ede9fe;border:2px solid #8b5cf6;color:#3b0764;font-weight:700;" />
+            </div>
+          </div>
+          <div class="field">
+            <label style="font-size:0.95rem;font-weight:700;">📧 إيميل البائع | Agent Email</label>
+            <input type="email" id="fEmail" readonly style="background:var(--bg4);color:var(--accent2);font-size:1rem;padding:0.85rem 1rem;" />
+          </div>
+          <div class="field" style="grid-column: 1 / -1;">
+            <label style="font-size:0.95rem;font-weight:700;">📝 ملاحظات | Notes</label>
+            <textarea id="fNotes" placeholder="أي ملاحظات إضافية..." rows="3"
+              style="background:#e8e8e8;border:1px solid #cccccc;border-radius:10px;padding:0.85rem 1rem;color:#222222;font-family:'Tajawal',sans-serif;font-size:0.95rem;font-weight:600;outline:none;width:100%;resize:vertical;transition:border-color 0.2s;"
+              onfocus="this.style.borderColor='var(--accent)'"
+              onblur="this.style.borderColor='#cccccc'"></textarea>
+          </div>
+        </div>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;">
+          <button class="btn-submit" id="receiptBtn" onclick="submitAndSendReceipt()" style="background:linear-gradient(135deg,#25d366,#128c7e);box-shadow:0 6px 20px rgba(37,211,102,0.3);">
+            📱 تسجيل + إرسال واتساب
+          </button>
+          <button class="btn-submit" id="submitBtn" onclick="submitSale()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);box-shadow:0 6px 20px rgba(99,102,241,0.35);">
+            📧 تسجيل بيعة + إيميل زبون
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS PANEL - للجميع -->
+    <div id="panel-stats" class="tab-panel">
+
+      <!-- فلتر التاريخ - يوم واحد -->
+      <div class="form-card" style="margin-bottom:1.2rem;padding:1rem 1.5rem;">
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <span style="font-size:0.9rem;font-weight:700;color:var(--accent2);">📅 تاريخ محدد:</span>
+          <input type="date" id="stDateFilter" style="background:#e8e8e8;border:1px solid #cccccc;border-radius:8px;padding:0.5rem 0.8rem;color:#222222;font-family:'Tajawal',sans-serif;outline:none;direction:ltr;font-size:0.85rem;" />
+          <button class="btn-sync" onclick="renderStats()" style="padding:0.5rem 1.2rem;">📊 عرض</button>
+          <button class="btn-sync" onclick="clearStatsFilter()" style="padding:0.5rem 1rem;">✖ الكل</button>
+        </div>
+      </div>
+
+      <!-- 1️⃣ إحصائيات الأدمن أولاً (للمدير فقط) -->
+      <div id="adminStatsSection" style="display:none;">
+        <div style="font-size:0.95rem;font-weight:700;color:var(--gold);margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+          👑 إحصائيات جميع البائعين
+        </div>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-val" id="stAllCount">0</div>
+            <div class="stat-label">إجمالي كل المبيعات</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-val" id="stAllSellers">0</div>
+            <div class="stat-label">عدد البائعين</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🇪🇬</div>
+            <div class="stat-val" id="stAllEGP">0.00</div>
+            <div class="stat-label">إجمالي جنيه</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🇺🇸</div>
+            <div class="stat-val" id="stAllUSD">0.00</div>
+            <div class="stat-label">إجمالي دولار</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🇪🇺</div>
+            <div class="stat-val" id="stAllEUR">0.00</div>
+            <div class="stat-label">إجمالي يورو</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🇬🇧</div>
+            <div class="stat-val" id="stAllGBP">0.00</div>
+            <div class="stat-label">إجمالي إسترليني</div>
+          </div>
+        </div>
+
+        <!-- ترتيب البائعين -->
+        <div style="font-size:0.85rem;font-weight:700;color:var(--accent2);margin:1.5rem 0 0.8rem;">🏆 ترتيب البائعين</div>
+        <div class="table-card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>الترتيب</th><th>البائع</th><th>عدد المبيعات</th><th>جنيه</th><th>دولار</th><th>يورو</th><th>إسترليني</th></tr></thead>
+              <tbody id="stLeaderBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="charts-grid" style="margin-top:1.5rem;">
+          <div class="chart-card">
+            <h3>👤 مبيعات البائعين</h3>
+            <canvas id="stAllSellerChart" height="200"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>🚢 المراكب الأكثر مبيعاً</h3>
+            <canvas id="stAllBoatChart" height="200"></canvas>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--border);margin:2rem 0 1.2rem;"></div>
+      </div>
+
+      <!-- 2️⃣ إحصائيات البائع (للجميع) -->
+      <div id="myStatsSection">
+        <div style="font-size:0.95rem;font-weight:700;color:var(--gold);margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+          👤 <span id="statsSellerName">إحصائياتي</span>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-val" id="stMyCount">0</div>
+            <div class="stat-label">عدد مبيعاتي</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🇪🇬</div>
+            <div class="stat-val" id="stMyEGP">0.00</div>
+            <div class="stat-label">إجمالي جنيه</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🇺🇸</div>
+            <div class="stat-val" id="stMyUSD">0.00</div>
+            <div class="stat-label">إجمالي دولار</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🇪🇺</div>
+            <div class="stat-val" id="stMyEUR">0.00</div>
+            <div class="stat-label">إجمالي يورو</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🇬🇧</div>
+            <div class="stat-val" id="stMyGBP">0.00</div>
+            <div class="stat-label">إجمالي إسترليني</div>
+          </div>
+        </div>
+
+        <!-- 3️⃣ مبيعات اليوم -->
+        <div style="font-size:0.85rem;font-weight:700;color:var(--accent2);margin:1.2rem 0 0.8rem;display:flex;align-items:center;gap:6px;">📅 مبيعات اليوم فقط</div>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon">🕐</div>
+            <div class="stat-val" id="stTodayCount">0</div>
+            <div class="stat-label">عدد مبيعات اليوم</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🇪🇬</div>
+            <div class="stat-val" id="stTodayEGP">0.00</div>
+            <div class="stat-label">جنيه اليوم</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🇺🇸</div>
+            <div class="stat-val" id="stTodayUSD">0.00</div>
+            <div class="stat-label">دولار اليوم</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🇪🇺</div>
+            <div class="stat-val" id="stTodayEUR">0.00</div>
+            <div class="stat-label">يورو اليوم</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🇬🇧</div>
+            <div class="stat-val" id="stTodayGBP">0.00</div>
+            <div class="stat-label">إسترليني اليوم</div>
+          </div>
+        </div>
+
+        <div class="charts-grid" style="margin-top:1.5rem;">
+          <div class="chart-card">
+            <h3>🚢 مبيعاتي حسب المركب</h3>
+            <canvas id="stMyBoatChart" height="200"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>📅 مبيعاتي اليومية</h3>
+            <canvas id="stMyDailyChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MY SALES -->
+    <div id="panel-my" class="tab-panel">
+
+      <!-- فلتر التاريخ -->
+      <div class="form-card" style="margin-bottom:1rem;padding:0.8rem 1rem;">
+        <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0.5rem;align-items:center;">
+          <input type="date" id="myDateFilter"
+            style="background:#e8e8e8;border:1px solid #cccccc;border-radius:8px;padding:0.5rem 0.7rem;color:#222222;font-family:'Tajawal',sans-serif;outline:none;direction:ltr;font-size:0.85rem;width:100%;" />
+          <button class="btn-sync" onclick="filterMyTable()" style="padding:0.5rem 0.8rem;white-space:nowrap;">🔍 بحث</button>
+          <button class="btn-sync" onclick="clearMyFilter()" style="padding:0.5rem 0.8rem;white-space:nowrap;">✖ مسح</button>
+          <button class="btn-sync" onclick="loadMySales()" style="padding:0.5rem 0.8rem;white-space:nowrap;">🔄</button>
+        </div>
+        <div class="loading" id="myLoading" style="display:none;margin-top:0.5rem;"><div class="spinner"></div></div>
+      </div>
+
+      <!-- إجماليات نتائج الفلترة -->
+      <div id="myFilterStats" style="display:none;" class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon">📦</div>
+          <div class="stat-val" id="mfsCount">0</div>
+          <div class="stat-label">عدد المبيعات</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🇪🇬</div>
+          <div class="stat-val" id="mfsEGP">0</div>
+          <div class="stat-label">إجمالي جنيه</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🇺🇸</div>
+          <div class="stat-val" id="mfsUSD">0</div>
+          <div class="stat-label">إجمالي دولار</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🇪🇺</div>
+          <div class="stat-val" id="mfsEUR">0</div>
+          <div class="stat-label">إجمالي يورو</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🇬🇧</div>
+          <div class="stat-val" id="mfsGBP">0</div>
+          <div class="stat-label">إجمالي إسترليني</div>
+        </div>
+        <div class="stat-card" style="border-color:rgba(16,185,129,0.3);">
+          <div class="stat-icon">💰</div>
+          <div class="stat-val" id="mfsCommission" style="color:#10b981;">0</div>
+          <div class="stat-label">إجمالي عمولة 35%</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-top">
+          <h3>📋 مبيعاتي</h3>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span id="myResultCount" style="font-size:0.82rem;color:var(--text-dim);"></span>
+            <button onclick="exportPDF('my')" style="background:linear-gradient(135deg,#dc2626,#991b1b);color:white;border:none;border-radius:10px;padding:0.5rem 1rem;font-family:'Tajawal',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(220,38,38,0.3);">
+              📄 PDF
+            </button>
+            <button onclick="sendPDFWhatsApp('my')" style="background:linear-gradient(135deg,#25d366,#128c7e);color:white;border:none;border-radius:10px;padding:0.5rem 1rem;font-family:'Tajawal',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(37,211,102,0.3);">
+              📱 واتساب
+            </button>
+          </div>
+        </div>
+
+        <!-- إجماليات فوق الجدول -->
+        <div id="myTotalsBar" style="padding:0.7rem 1.2rem;background:rgba(59,130,246,0.08);border-bottom:1px solid var(--border);display:flex;gap:1.2rem;flex-wrap:wrap;align-items:center;">
+          <span style="font-weight:800;color:var(--accent2);font-size:0.85rem;">📊 الإجمالي:</span>
+          <span id="myTotEGP" style="color:#f59e0b;font-weight:700;font-size:0.85rem;"></span>
+          <span id="myTotUSD" style="color:#3b82f6;font-weight:700;font-size:0.85rem;"></span>
+          <span id="myTotEUR" style="color:#10b981;font-weight:700;font-size:0.85rem;"></span>
+          <span id="myTotGBP" style="color:#8b5cf6;font-weight:700;font-size:0.85rem;"></span>
+          <span style="color:var(--border);">|</span>
+          <span id="myTotAll" style="color:var(--gold);font-weight:900;font-size:0.9rem;"></span>
+          <span id="myTotComm" style="color:#10b981;font-weight:900;font-size:0.9rem;"></span>
+        </div>
+
+        <div class="table-wrap" style="max-height:70vh;overflow-y:auto;">
+          <table>
+            <thead style="position:sticky;top:0;z-index:10;">
+              <tr><th>#</th><th>التاريخ | Date</th><th>الزبون | Customer</th><th>التليفون | Phone</th><th>المركب | Boat</th><th>الفندق | Hotel</th><th>الغرفة | Room</th><th>🇪🇬 جنيه</th><th>🇺🇸 دولار</th><th>🇪🇺 يورو</th><th>🇬🇧 إسترليني</th><th>🇪🇬 إجمالي جنيه</th><th>💰 35% عمولة</th><th>📝 ملاحظات</th></tr>
+            </thead>
+            <tbody id="myTableBody"></tbody>
+          </table>
+          <div id="myEmpty" class="empty-msg" style="display:none;">
+            <span class="e-icon">📭</span>
+            لا توجد مبيعات بعد. سجّل أول بيعة الآن!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL SALES (Admin) -->
+    <div id="panel-all" class="tab-panel">
+      <div class="table-card">
+        <div class="table-top">
+          <h3>🌐 كل المبيعات | All Sales</h3>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <div class="loading" id="allLoading" style="display:none;"><div class="spinner"></div></div>
+            <button class="btn-sync" onclick="loadAllSales()">🔄 تحديث</button>
+            <button onclick="exportToExcel()" style="background:linear-gradient(135deg,#217346,#1a5c38);color:white;border:none;border-radius:10px;padding:0.5rem 1.1rem;font-family:'Tajawal',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;box-shadow:0 4px 12px rgba(33,115,70,0.3);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              حفظ Excel
+            </button>
+            <button onclick="exportPDF('all')" style="background:linear-gradient(135deg,#dc2626,#991b1b);color:white;border:none;border-radius:10px;padding:0.5rem 1rem;font-family:'Tajawal',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(220,38,38,0.3);">
+              📄 PDF
+            </button>
+            <button onclick="sendPDFWhatsApp('all')" style="background:linear-gradient(135deg,#25d366,#128c7e);color:white;border:none;border-radius:10px;padding:0.5rem 1rem;font-family:'Tajawal',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(37,211,102,0.3);">
+              📱 واتساب
+            </button>
+          </div>
+        </div>
+
+        <!-- فلاتر صفحة كل المبيعات -->
+        <div style="padding:0.8rem 1.2rem;border-bottom:1px solid var(--border);display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;">
+          <select id="allSellerFilter" onchange="filterAllTable()" style="background:#e8e8e8;border:1px solid #cccccc;border-radius:8px;padding:0.5rem 0.8rem;color:#222222;font-family:'Tajawal',sans-serif;outline:none;direction:rtl;font-size:0.85rem;">
+            <option value="">👤 كل البائعين | All Sellers</option>
+          </select>
+          <input type="date" id="allDateFilter" onchange="filterAllTable()" style="background:#e8e8e8;border:1px solid #cccccc;border-radius:8px;padding:0.5rem 0.8rem;color:#222222;font-family:'Tajawal',sans-serif;outline:none;direction:ltr;font-size:0.85rem;" />
+          <button class="btn-sync" onclick="clearAllFilter()" style="padding:0.5rem 1rem;">✖ مسح</button>
+          <span id="allResultCount" style="font-size:0.82rem;color:var(--text-dim);margin-right:auto;"></span>
+        </div>
+
+        <!-- إجماليات فوق الجدول -->
+        <div id="allTotalsBar" style="display:none;padding:0.7rem 1.2rem;background:rgba(59,130,246,0.08);border-bottom:1px solid var(--border);display:flex;gap:1.2rem;flex-wrap:wrap;align-items:center;">
+          <span style="font-weight:800;color:var(--accent2);font-size:0.85rem;">📊 الإجمالي:</span>
+          <span id="allTotEGP" style="color:#f59e0b;font-weight:700;font-size:0.85rem;"></span>
+          <span id="allTotUSD" style="color:#3b82f6;font-weight:700;font-size:0.85rem;"></span>
+          <span id="allTotEUR" style="color:#10b981;font-weight:700;font-size:0.85rem;"></span>
+          <span id="allTotGBP" style="color:#8b5cf6;font-weight:700;font-size:0.85rem;"></span>
+          <span style="color:var(--border);">|</span>
+          <span id="allTotAll" style="color:var(--gold);font-weight:900;font-size:0.9rem;"></span>
+          <span id="allTotComm" style="color:#10b981;font-weight:900;font-size:0.9rem;"></span>
+        </div>
+
+        <div class="table-wrap" style="max-height:70vh;overflow-y:auto;">
+          <table>
+            <thead style="position:sticky;top:0;z-index:10;">
+              <tr><th>#</th><th>البائع | Seller</th><th>التاريخ | Date</th><th>الزبون | Customer</th><th>المركب | Boat</th><th>الفندق | Hotel</th><th>الغرفة | Room</th><th>🇪🇬 جنيه</th><th>🇺🇸 دولار</th><th>🇪🇺 يورو</th><th>🇬🇧 إسترليني</th><th>🇪🇬 إجمالي جنيه</th><th>💰 35% عمولة</th><th>📝 ملاحظات</th></tr>
+            </thead>
+            <tbody id="allTableBody"></tbody>
+          </table>
+          <div id="allEmpty" class="empty-msg" style="display:none;">
+            <span class="e-icon">📭</span>لا توجد بيانات
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH (Admin) -->
+    <div id="panel-search" class="tab-panel">
+
+      <!-- فلاتر البحث - صف واحد -->
+      <div class="form-card">
+        <div class="card-title">🔍 بحث واستعلام | Search & Query</div>
+        <div style="display:flex;gap:0.8rem;align-items:flex-end;flex-wrap:wrap;">
+          <div class="field" style="flex:1;min-width:130px;">
+            <label>📅 التاريخ | Date</label>
+            <input type="date" id="sDate" style="background:#e8e8e8;border:1px solid #cccccc;border-radius:10px;padding:0.7rem 0.9rem;color:#222222;font-family:'Tajawal',sans-serif;outline:none;direction:ltr;width:100%;" />
+          </div>
+          <div class="field" style="flex:1;min-width:130px;">
+            <label>👤 البائع | Seller</label>
+            <select id="sSeller" style="background:#e8e8e8;border:1px solid #cccccc;border-radius:10px;padding:0.7rem 0.9rem;color:#222222;font-family:'Tajawal',sans-serif;outline:none;direction:rtl;width:100%;">
+              <option value="">الكل | All</option>
+            </select>
+          </div>
+          <div class="field" style="flex:1;min-width:130px;">
+            <label>🚢 المركب | Boat</label>
+            <select id="sBoat" style="background:#e8e8e8;border:1px solid #cccccc;border-radius:10px;padding:0.7rem 0.9rem;color:#222222;font-family:'Tajawal',sans-serif;outline:none;direction:rtl;width:100%;">
+              <option value="">الكل | All</option>
+              <option value="روما">Roma</option>
+              <option value="ادم">Adam</option>
+              <option value="سيريانا">Seriana</option>
+              <option value="ميس شيري">Miss Sherry</option>
+              <option value="أخرى">Other</option>
+            </select>
+          </div>
+          <div class="field" style="flex:1;min-width:130px;">
+            <label>🏨 الفندق | Hotel</label>
+            <input type="text" id="sHotel" placeholder="Hotel name..." style="background:#e8e8e8;border:1px solid #cccccc;border-radius:10px;padding:0.7rem 0.9rem;color:#222222;font-family:'Tajawal',sans-serif;outline:none;direction:rtl;width:100%;" />
+          </div>
+          <div class="field" style="flex:1;min-width:130px;">
+            <label>👤 الزبون | Customer</label>
+            <input type="text" id="sCustomer" placeholder="Customer name..." style="background:#e8e8e8;border:1px solid #cccccc;border-radius:10px;padding:0.7rem 0.9rem;color:#222222;font-family:'Tajawal',sans-serif;outline:none;direction:rtl;width:100%;" />
+          </div>
+          <div style="display:flex;gap:0.6rem;padding-bottom:2px;">
+            <button class="btn-submit" onclick="runSearch()" style="padding:0.7rem 1.5rem;white-space:nowrap;">🔍 بحث</button>
+            <button class="btn-sync" onclick="clearSearch()" style="padding:0.7rem 1rem;border-radius:10px;font-size:0.9rem;white-space:nowrap;">✖ مسح</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- نتائج البحث - إجماليات -->
+      <div class="stats-row" id="searchStats" style="display:none;">
+        <div class="stat-card">
+          <div class="stat-icon">📦</div>
+          <div class="stat-val" id="srCount">0</div>
+          <div class="stat-label">عدد النتائج</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🇪🇬</div>
+          <div class="stat-val" id="srEGP">0</div>
+          <div class="stat-label">إجمالي جنيه</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🇺🇸</div>
+          <div class="stat-val" id="srUSD">0</div>
+          <div class="stat-label">إجمالي دولار</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🇪🇺</div>
+          <div class="stat-val" id="srEUR">0</div>
+          <div class="stat-label">إجمالي يورو</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🇬🇧</div>
+          <div class="stat-val" id="srGBP">0</div>
+          <div class="stat-label">إجمالي إسترليني</div>
+        </div>
+        <div class="stat-card" style="border-color:rgba(245,158,11,0.3);">
+          <div class="stat-icon">🇪🇬</div>
+          <div class="stat-val" id="srTotalEGP" style="color:var(--gold);">0</div>
+          <div class="stat-label">إجمالي بالجنيه</div>
+        </div>
+        <div class="stat-card" style="border-color:rgba(16,185,129,0.3);">
+          <div class="stat-icon">💰</div>
+          <div class="stat-val" id="srCommission" style="color:#10b981;">0</div>
+          <div class="stat-label">إجمالي عمولة 35%</div>
+        </div>
+      </div>
+
+      <!-- جدول النتائج -->
+      <div class="table-card" id="searchResultCard" style="display:none;">
+        <div class="table-top">
+          <h3>📋 نتائج البحث</h3>
+          <div style="display:flex;gap:8px;">
+            <div class="loading" id="searchLoading" style="display:none;"><div class="spinner"></div></div>
+            <span id="searchCount" style="font-size:0.85rem;color:var(--text-dim);padding:4px 10px;"></span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>البائع | Seller</th><th>التاريخ | Date</th>
+                <th>الزبون | Customer</th><th>التليفون | Phone</th>
+                <th>المركب | Boat</th><th>الفندق | Hotel</th><th>الغرفة | Room</th>
+                <th>🇪🇬 جنيه</th><th>🇺🇸 دولار</th><th>🇪🇺 يورو</th><th>🇬🇧 إسترليني</th>
+                <th>🇪🇬 إجمالي جنيه</th><th>💰 35% عمولة</th>
+              </tr>
+            </thead>
+            <tbody id="searchTableBody"></tbody>
+          </table>
+          <div id="searchEmpty" class="empty-msg" style="display:none;">
+            <span class="e-icon">🔍</span>
+            لا توجد نتائج مطابقة للبحث
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORTS (Admin) -->
+    <div id="panel-reports" class="tab-panel">
+
+      <!-- فلتر التاريخ التفاعلي -->
+      <div class="form-card" style="padding:1rem 1.5rem;margin-bottom:1.2rem;">
+        <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
+          <span style="font-weight:700;color:var(--accent2);font-size:0.9rem;">📅 فلترة التقارير:</span>
+          <button onclick="setReportPeriod('today')" id="rBtn_today" class="rPeriodBtn" style="background:rgba(59,130,246,0.2);border:1px solid var(--accent);color:var(--accent2);border-radius:8px;padding:0.4rem 0.9rem;font-family:'Tajawal',sans-serif;font-size:0.82rem;cursor:pointer;">اليوم</button>
+          <button onclick="setReportPeriod('week')" id="rBtn_week" class="rPeriodBtn" style="background:var(--bg3);border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:0.4rem 0.9rem;font-family:'Tajawal',sans-serif;font-size:0.82rem;cursor:pointer;">هذا الأسبوع</button>
+          <button onclick="setReportPeriod('month')" id="rBtn_month" class="rPeriodBtn" style="background:var(--bg3);border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:0.4rem 0.9rem;font-family:'Tajawal',sans-serif;font-size:0.82rem;cursor:pointer;">هذا الشهر</button>
+          <button onclick="setReportPeriod('all')" id="rBtn_all" class="rPeriodBtn" style="background:var(--bg3);border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:0.4rem 0.9rem;font-family:'Tajawal',sans-serif;font-size:0.82rem;cursor:pointer;">الكل</button>
+          <div style="display:flex;align-items:center;gap:6px;margin-right:auto;">
+            <span style="font-size:0.8rem;color:var(--text-dim);">أو اختر يوم:</span>
+            <input type="date" id="rDateFilter" onchange="setReportPeriod('custom')"
+              style="background:#e8e8e8;border:1px solid #cccccc;border-radius:8px;padding:0.4rem 0.8rem;color:#222222;font-family:'Tajawal',sans-serif;outline:none;direction:ltr;font-size:0.82rem;" />
+          </div>
+          <span id="rFilterLabel" style="font-size:0.8rem;color:var(--gold);font-weight:700;"></span>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-val" id="rCount">0</div><div class="stat-label">إجمالي المبيعات</div></div>
+        <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-val" id="rSellers">0</div><div class="stat-label">عدد البائعين</div></div>
+        <div class="stat-card"><div class="stat-icon">🇪🇬</div><div class="stat-val" id="rEGP">0</div><div class="stat-label">إجمالي جنيه</div></div>
+        <div class="stat-card"><div class="stat-icon">🇺🇸</div><div class="stat-val" id="rUSD">0</div><div class="stat-label">إجمالي دولار</div></div>
+        <div class="stat-card"><div class="stat-icon">🇪🇺</div><div class="stat-val" id="rEUR">0</div><div class="stat-label">إجمالي يورو</div></div>
+        <div class="stat-card"><div class="stat-icon">🇬🇧</div><div class="stat-val" id="rGBP">0</div><div class="stat-label">إجمالي إسترليني</div></div>
+        <div class="stat-card" style="border-color:rgba(245,158,11,0.3);">
+          <div class="stat-icon">🇪🇬</div>
+          <div class="stat-val" id="rTotalEGP" style="color:var(--gold);">0</div>
+          <div class="stat-label">إجمالي بالجنيه</div>
+        </div>
+        <div class="stat-card" style="border-color:rgba(16,185,129,0.3);">
+          <div class="stat-icon">💰</div>
+          <div class="stat-val" id="rCommission" style="color:#10b981;">0</div>
+          <div class="stat-label">إجمالي عمولة 35%</div>
+        </div>
+      </div>
+
+      <!-- Seller leaderboard أولاً -->
+      <div class="table-card" style="margin-bottom:1.2rem;">
+        <div class="table-top"><h3>🏆 ترتيب البائعين</h3><button class="btn-sync" onclick="renderReports()">🔄 تحديث</button></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>الترتيب</th><th>البائع</th><th>عدد المبيعات</th><th>🇪🇬 جنيه</th><th>🇺🇸 دولار</th><th>🇪🇺 يورو</th><th>🇬🇧 إسترليني</th><th>🇪🇬 إجمالي جنيه</th><th>💰 عمولة 35%</th></tr></thead>
+            <tbody id="leaderBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card"><h3>👤 مبيعات البائعين</h3><canvas id="cSeller" height="220"></canvas></div>
+        <div class="chart-card"><h3>🚢 المراكب الأكثر مبيعاً</h3><canvas id="cBoat" height="220"></canvas></div>
+        <div class="chart-card"><h3>📅 المبيعات اليومية</h3><canvas id="cDaily" height="220"></canvas></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="panel-settings" class="tab-panel">
+
+      <!-- إعدادات الاتصال - محمية للأدمن فقط -->
+      <div class="form-card">
+        <div class="card-title">⚙️ إعدادات الاتصال | Connection Settings</div>
+        <div class="field" style="margin-bottom:1rem;">
+          <label>🔗 رابط Google Apps Script</label>
+          <div style="position:relative;">
+            <input type="text" id="settingsUrl"
+              placeholder="https://script.google.com/macros/s/..."
+              style="padding-left:2.5rem;"
+              readonly />
+            <span style="position:absolute;left:0.8rem;top:50%;transform:translateY(-50%);font-size:1rem;">🔒</span>
+          </div>
+        </div>
+        <div id="connectionStatus" style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;font-size:0.85rem;color:var(--success);">
+          ✅ متصل بـ Google Sheets — البيانات محفوظة تلقائياً
+        </div>
+
+        <!-- زر حفظ للأدمن فقط -->
+        <div id="adminSettingsBtn" style="display:none;">
+          <input type="text" id="settingsUrlEdit"
+            placeholder="https://script.google.com/macros/s/..."
+            style="width:100%;margin-bottom:0.8rem;" />
+          <button class="btn-submit" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+        </div>
+
+        <!-- رسالة للمستخدم العادي -->
+        <div id="userSettingsMsg" style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:0.8rem 1rem;font-size:0.85rem;color:var(--accent3);">
+          🔐 إعدادات الاتصال محمية — يمكن للمدير فقط تعديلها
+        </div>
+      </div>
+
+      <!-- أسعار الصرف - للأدمن فقط -->
+      <div id="ratesSection" class="form-card" style="margin-top:1rem;display:none;">
+        <div class="card-title">💱 أسعار الصرف الحالية | Exchange Rates</div>
+        <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:0.8rem 1rem;font-size:0.83rem;color:var(--accent3);margin-bottom:1.2rem;">
+          ⚠️ كل بيعة جديدة ستُحفظ بأسعار الصرف المسجلة هنا. البيانات القديمة لن تتأثر بالتغيير.
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.2rem;">
+          <div class="field">
+            <label>🇺🇸 سعر الدولار | USD Rate</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="number" id="rateUSD" placeholder="50" min="1" step="0.01"
+                style="background:#e8e8e8;border:1px solid #cccccc;border-radius:10px;padding:0.75rem 1rem;color:#222222;font-family:'Tajawal',sans-serif;outline:none;width:100%;" />
+              <span style="color:var(--text-dim);font-size:0.85rem;white-space:nowrap;">جنيه / دولار</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>🇪🇺 سعر اليورو | EUR Rate</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="number" id="rateEUR" placeholder="55" min="1" step="0.01"
+                style="background:#e8e8e8;border:1px solid #cccccc;border-radius:10px;padding:0.75rem 1rem;color:#222222;font-family:'Tajawal',sans-serif;outline:none;width:100%;" />
+              <span style="color:var(--text-dim);font-size:0.85rem;white-space:nowrap;">جنيه / يورو</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>🇬🇧 سعر الإسترليني | GBP Rate</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="number" id="rateGBP" placeholder="63" min="1" step="0.01"
+                style="background:#e8e8e8;border:1px solid #cccccc;border-radius:10px;padding:0.75rem 1rem;color:#222222;font-family:'Tajawal',sans-serif;outline:none;width:100%;" />
+              <span style="color:var(--text-dim);font-size:0.85rem;white-space:nowrap;">جنيه / إسترليني</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- معاينة الأسعار الحالية -->
+        <div id="ratesPreview" style="background:var(--bg3);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;font-size:0.85rem;">
+          <div style="font-weight:700;color:var(--accent2);margin-bottom:0.6rem;">📊 الأسعار الحالية المطبقة:</div>
+          <div style="display:flex;gap:1.5rem;flex-wrap:wrap;color:var(--text-dim);">
+            <span>🇺🇸 <strong id="previewUSD" style="color:var(--text);">50</strong> جنيه/دولار</span>
+            <span>🇪🇺 <strong id="previewEUR" style="color:var(--text);">55</strong> جنيه/يورو</span>
+            <span>🇬🇧 <strong id="previewGBP" style="color:var(--text);">63</strong> جنيه/إسترليني</span>
+          </div>
+        </div>
+
+        <button class="btn-submit" onclick="saveRates()" style="background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 6px 20px rgba(245,158,11,0.3);">
+          💱 حفظ أسعار الصرف
+        </button>
+      </div>
+
+      <!-- مسح البيانات المحلية - للأدمن فقط -->
+      <div id="clearDataSection" class="form-card" style="margin-top:1rem;display:none;border-color:rgba(239,68,68,0.3);">
+        <div class="card-title" style="color:#ef4444;">🗑️ مسح البيانات المحلية</div>
+        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:0.8rem 1rem;font-size:0.85rem;color:#fca5a5;margin-bottom:1rem;">
+          ⚠️ هذا سيمسح فقط البيانات المؤقتة من ذاكرة المتصفح. البيانات في Google Sheets لن تُمسح.
+        </div>
+        <button onclick="clearLocalData()" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:none;border-radius:12px;padding:0.85rem 2rem;font-family:'Tajawal',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(239,68,68,0.3);">
+          🗑️ مسح البيانات المحلية من المتصفح
+        </button>
+      </div>
+
+      <!-- إعداد كلمة مرور المدير -->
+      <div id="adminPassSection" class="form-card" style="margin-top:1rem;display:none;">
+        <div class="card-title">👑 إعداد كلمة مرور المدير</div>
+        <div class="field" style="margin-bottom:1rem;">
+          <label>كلمة المرور الحالية</label>
+          <input type="password" id="oldPass" placeholder="..." />
+        </div>
+        <div class="field" style="margin-bottom:1rem;">
+          <label>كلمة المرور الجديدة</label>
+          <input type="password" id="newPass" placeholder="..." />
+        </div>
+        <button class="btn-submit" onclick="changeAdminPass()">🔐 تغيير كلمة المرور</button>
+        <div style="margin-top:0.5rem;font-size:0.78rem;color:var(--text-dim);">كلمة المرور الافتراضية: <strong style="color:var(--accent2);">admin123</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== STATE ==========
+let currentUser = null;
+let isAdmin = false;
+// الرابط مثبت — لا يحتاج الموظفون لكتابته
+const FIXED_API_URL = 'https://script.google.com/macros/s/AKfycbzY-6e-zvkOyuzejwkdWav-GF3_FJrRGPZ3zRh1cirRvMwTTpRu4LqXujTTSm_Y3iMnLw/exec';
+let apiUrl = FIXED_API_URL;
+let allSalesData = [];
+let mySalesData = [];
+let charts = {};
+let ADMIN_PASS_KEY = 'adminPass';
+
+// ========== SETUP ==========
+function validateEmailField(input) {
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim());
+  const err = document.getElementById('emailError');
+  if (input.value && !valid) {
+    input.style.borderColor = 'rgba(239,68,68,0.5)';
+    if (err) err.style.display = 'block';
+  } else {
+    input.style.borderColor = valid ? 'rgba(16,185,129,0.5)' : '';
+    if (err) err.style.display = 'none';
+  }
+}
+
+function showAdminLogin() {
+  document.getElementById('sellerForm').style.display = 'none';
+  document.getElementById('adminForm').style.display = 'block';
+}
+function showSellerForm() {
+  document.getElementById('adminForm').style.display = 'none';
+  document.getElementById('sellerForm').style.display = 'block';
+}
+
+// تحقق إذا البائع مسجل من قبل — دخول تلقائي
+function loginSeller() {
+  const name = document.getElementById('inputSeller').value.trim();
+  const email = document.getElementById('inputEmail').value.trim();
+
+  if (!name) {
+    showToast('⚠️ يرجى إدخال اسمك', 'error');
+    document.getElementById('inputSeller').focus();
+    return;
+  }
+  if (!email) {
+    showToast('⚠️ يرجى إدخال إيميلك', 'error');
+    document.getElementById('inputEmail').focus();
+    document.getElementById('emailError').style.display = 'block';
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showToast('⚠️ الإيميل غير صحيح — يرجى إدخال إيميل صحيح', 'error');
+    document.getElementById('inputEmail').focus();
+    document.getElementById('emailError').style.display = 'block';
+    return;
+  }
+
+  currentUser = { name, email, location: '' };
+  isAdmin = false;
+  apiUrl = FIXED_API_URL;
+  localStorage.setItem('savedSeller', JSON.stringify({ name, email }));
+  startApp();
+}
+
+function loginAdmin() {
+  const pass = document.getElementById('inputAdminPass').value;
+  const storedPass = localStorage.getItem(ADMIN_PASS_KEY) || 'admin123';
+  if (pass !== storedPass) { showToast('كلمة المرور غير صحيحة', 'error'); return; }
+  currentUser = { name: 'المدير', email: 'admin', location: 'الإدارة' };
+  isAdmin = true;
+  apiUrl = FIXED_API_URL;
+  startApp();
+}
+
+function startApp() {
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('headerSeller').textContent = currentUser.name;
+  document.getElementById('headerSubtitle').textContent = currentUser.email || '';
+  if (document.getElementById('settingsUrl')) {
+    document.getElementById('settingsUrl').value = apiUrl;
+  }
+
+  // ضبط تاريخ اليوم
+  function getTodayISO() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  if (document.getElementById('fDatePicker')) {
+    document.getElementById('fDatePicker').value = getTodayISO();
+    document.getElementById('fDatePicker').style.direction = 'ltr';
+    document.getElementById('fDatePicker').style.textAlign = 'left';
+  }
+
+  if (document.getElementById('fEmail')) document.getElementById('fEmail').value = currentUser.email || '';
+
+  if (isAdmin) {
+    document.getElementById('adminBadge').style.display = 'inline';
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+    document.getElementById('adminSettingsBtn').style.display = 'block';
+    document.getElementById('adminPassSection').style.display = 'block';
+    document.getElementById('ratesSection').style.display = 'block';
+    document.getElementById('clearDataSection').style.display = 'block';
+    document.getElementById('userSettingsMsg').style.display = 'none';
+    if (document.getElementById('settingsUrlEdit')) {
+      document.getElementById('settingsUrlEdit').value = apiUrl;
+    }
+    loadRatesUI();
+  } else {
+    document.getElementById('adminSettingsBtn').style.display = 'none';
+    document.getElementById('adminPassSection').style.display = 'none';
+    document.getElementById('ratesSection').style.display = 'none';
+    document.getElementById('userSettingsMsg').style.display = 'block';
+  }
+
+  // عرض الرابط المحمي (مخفي جزئياً)
+  if (document.getElementById('settingsUrl')) {
+    const masked = apiUrl ? apiUrl.slice(0, 40) + '...' : 'غير متصل';
+    document.getElementById('settingsUrl').value = masked;
+  }
+
+  checkConnection();
+  // علامة الاتصال للأدمن فقط
+  const syncBar = document.getElementById('syncBar');
+  if (syncBar) syncBar.style.display = isAdmin ? 'flex' : 'none';
+  loadMySales();
+  updateMyStats();
+  if (isAdmin) loadAllSales();
+}
+
+function logout() {
+  currentUser = null; isAdmin = false;
+  localStorage.removeItem('savedSeller');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('setupScreen').style.display = 'flex';
+  document.getElementById('adminBadge').style.display = 'none';
+  document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+  switchTab('add', document.querySelector('.nav-tab'));
+}
+
+function changeAccount() {
+  // امسح البيانات المحفوظة وأعد لشاشة الدخول
+  localStorage.removeItem('savedSeller');
+  currentUser = null; isAdmin = false;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('setupScreen').style.display = 'flex';
+  document.getElementById('inputSeller').value = '';
+  document.getElementById('inputEmail').value = '';
+  document.getElementById('adminBadge').style.display = 'none';
+  document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+  showSellerForm();
+}
+
+// ========== TABS ==========
+function switchTab(name, el) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  el.classList.add('active');
+  if (name === 'my') loadMySales();
+  if (name === 'stats') renderStats();
+  if (name === 'all' && isAdmin) loadAllSales();
+  if (name === 'search' && isAdmin) { loadAllSales().then(() => populateSellerFilter()); }
+  if (name === 'reports' && isAdmin) { loadAllSales().then(() => renderReports()); }
+}
+
+// ========== STATS PAGE ==========
+async function renderStats() {
+  // إظهار قسم الأدمن
+  if (isAdmin) {
+    document.getElementById('adminStatsSection').style.display = 'block';
+    document.getElementById('statsSellerName').textContent = 'إحصائياتي — ' + currentUser.name;
+  }
+
+  // تحميل بياناتي إذا لم تكن محملة
+  if (!mySalesData.length) await loadMySales();
+
+  const today = new Date().toDateString();
+  const dateVal = document.getElementById('stDateFilter').value;
+
+  // فلترة بالتاريخ
+  let myData = mySalesData.slice();
+  if (dateVal) {
+    myData = myData.filter(s => matchDate(s, dateVal));
+  }
+
+  const todayStr = (() => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth()+1).padStart(2,'0');
+    const d = String(now.getDate()).padStart(2,'0');
+    return `${y}-${m}-${d}`;
+  })();
+
+  const todayData = mySalesData.filter(s => {
+    return extractDateStr(s.date) === todayStr || extractDateStr(s.dateISO) === todayStr;
+  });
+
+  // إحصائياتي
+  document.getElementById('stMyCount').textContent = myData.length;
+  document.getElementById('stMyEGP').textContent = myData.reduce((a,s)=>a+(parseFloat(s.egp)||0),0).toFixed(2);
+  document.getElementById('stMyUSD').textContent = myData.reduce((a,s)=>a+(parseFloat(s.usd)||0),0).toFixed(2);
+  document.getElementById('stMyEUR').textContent = myData.reduce((a,s)=>a+(parseFloat(s.eur)||0),0).toFixed(2);
+  document.getElementById('stMyGBP').textContent = myData.reduce((a,s)=>a+(parseFloat(s.gbp)||0),0).toFixed(2);
+
+  // إحصائيات اليوم
+  document.getElementById('stTodayCount').textContent = todayData.length;
+  document.getElementById('stTodayEGP').textContent = todayData.reduce((a,s)=>a+(parseFloat(s.egp)||0),0).toFixed(2);
+  document.getElementById('stTodayUSD').textContent = todayData.reduce((a,s)=>a+(parseFloat(s.usd)||0),0).toFixed(2);
+  document.getElementById('stTodayEUR').textContent = todayData.reduce((a,s)=>a+(parseFloat(s.eur)||0),0).toFixed(2);
+  document.getElementById('stTodayGBP').textContent = todayData.reduce((a,s)=>a+(parseFloat(s.gbp)||0),0).toFixed(2);
+
+  // رسم مبيعاتي حسب المركب
+  const boatMap = {};
+  myData.forEach(s => { if(s.boat) boatMap[s.boat] = (boatMap[s.boat]||0) + 1; });
+  mkChart('stMyBoatChart','doughnut',Object.keys(boatMap),Object.values(boatMap),['#3b82f6','#60a5fa','#f59e0b','#10b981','#8b5cf6']);
+
+  // رسم مبيعاتي اليومية
+  const dailyMap = {};
+  myData.forEach(s => {
+    const d = (s.dateISO||'').slice(0,10) || (s.date||'').slice(0,10);
+    if(d) dailyMap[d] = (dailyMap[d]||0) + 1;
+  });
+  const dk = Object.keys(dailyMap).sort();
+  mkChart('stMyDailyChart','bar',dk,dk.map(k=>dailyMap[k]),['#3b82f6'],'المبيعات');
+
+  // إحصائيات الأدمن
+  if (isAdmin) {
+    if (!allSalesData.length) await loadAllSales();
+    let allData = allSalesData.slice();
+    if (dateVal) {
+      allData = allData.filter(s => matchDate(s, dateVal));
+    }
+
+    document.getElementById('stAllCount').textContent = allData.length;
+    document.getElementById('stAllSellers').textContent = new Set(allData.map(s=>s.seller)).size;
+    document.getElementById('stAllEGP').textContent = allData.reduce((a,s)=>a+(parseFloat(s.egp)||0),0).toFixed(2);
+    document.getElementById('stAllUSD').textContent = allData.reduce((a,s)=>a+(parseFloat(s.usd)||0),0).toFixed(2);
+    document.getElementById('stAllEUR').textContent = allData.reduce((a,s)=>a+(parseFloat(s.eur)||0),0).toFixed(2);
+    document.getElementById('stAllGBP').textContent = allData.reduce((a,s)=>a+(parseFloat(s.gbp)||0),0).toFixed(2);
+
+    // ترتيب البائعين
+    const sellerMap = {};
+    allData.forEach(s => {
+      if (!sellerMap[s.seller]) sellerMap[s.seller] = {count:0,egp:0,usd:0,eur:0,gbp:0};
+      sellerMap[s.seller].count++;
+      sellerMap[s.seller].egp += parseFloat(s.egp)||0;
+      sellerMap[s.seller].usd += parseFloat(s.usd)||0;
+      sellerMap[s.seller].eur += parseFloat(s.eur)||0;
+      sellerMap[s.seller].gbp += parseFloat(s.gbp)||0;
+    });
+
+    const sorted = Object.entries(sellerMap).sort((a,b)=>b[1].count-a[1].count);
+    document.getElementById('stLeaderBody').innerHTML = sorted.map(([name,d],i) => `
+      <tr>
+        <td>${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</td>
+        <td><span class="chip chip-blue">${name}</span></td>
+        <td><strong>${d.count}</strong></td>
+        <td class="amount">${d.egp > 0 ? d.egp.toFixed(2)+' ج' : '-'}</td>
+        <td class="amount">${d.usd > 0 ? '$'+d.usd.toFixed(2) : '-'}</td>
+        <td class="amount">${d.eur > 0 ? '€'+d.eur.toFixed(2) : '-'}</td>
+        <td class="amount">${d.gbp > 0 ? '£'+d.gbp.toFixed(2) : '-'}</td>
+      </tr>
+    `).join('');
+
+    // رسم البائعين
+    mkChart('stAllSellerChart','bar',sorted.map(s=>s[0]),sorted.map(s=>s[1].count),['#3b82f6','#60a5fa','#f59e0b','#10b981','#8b5cf6'],'المبيعات');
+
+    // رسم المراكب
+    const boatAll = {};
+    allData.forEach(s => { if(s.boat) boatAll[s.boat] = (boatAll[s.boat]||0)+1; });
+    mkChart('stAllBoatChart','doughnut',Object.keys(boatAll),Object.values(boatAll),['#3b82f6','#60a5fa','#f59e0b','#10b981','#8b5cf6']);
+  }
+}
+
+function clearStatsFilter() {
+  document.getElementById('stDateFrom').value = '';
+  document.getElementById('stDateTo').value = '';
+  renderStats();
+}
+
+// ========== SEARCH FUNCTIONS ==========
+function populateSellerFilter() {
+  const sel = document.getElementById('sSeller');
+  const sellers = [...new Set(allSalesData.map(s => s.seller).filter(Boolean))];
+  const current = sel.value;
+  sel.innerHTML = '<option value="">كل البائعين</option>';
+  sellers.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s;
+    if (s === current) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function parseSearchDate(dateStr) {
+  // يحوّل التاريخ العربي أو ISO إلى Date object
+  if (!dateStr) return null;
+  // ISO format
+  if (dateStr.includes('T')) return new Date(dateStr);
+  // YYYY-MM-DD
+  if (dateStr.match(/^\d{4}-\d{2}-\d{2}/)) return new Date(dateStr);
+  // Arabic date — نرجع null ونعتمد على dateISO
+  return null;
+}
+
+function runSearch() {
+  const dateFrom = document.getElementById('sDateFrom').value;
+  const dateTo = document.getElementById('sDateTo').value;
+  const seller = document.getElementById('sSeller').value;
+  const boat = document.getElementById('sBoat').value;
+  const hotel = document.getElementById('sHotel').value.trim().toLowerCase();
+  const customer = document.getElementById('sCustomer').value.trim().toLowerCase();
+
+  let data = allSalesData.slice();
+
+  // فلتر البائع
+  if (seller) data = data.filter(s => s.seller === seller);
+
+  // فلتر المركب
+  if (boat) data = data.filter(s => s.boat === boat);
+
+  // فلتر الفندق
+  if (hotel) data = data.filter(s => (s.hotel || '').toLowerCase().includes(hotel));
+
+  // فلتر الزبون
+  if (customer) data = data.filter(s => (s.customer || '').toLowerCase().includes(customer));
+
+  // فلتر التاريخ
+  if (dateFrom || dateTo) {
+    data = data.filter(s => {
+      const sDate = extractDateStr(s.date) || extractDateStr(s.dateISO);
+      if (!sDate) return true;
+      if (dateFrom && sDate < dateFrom) return false;
+      if (dateTo && sDate > dateTo) return false;
+      return true;
+    });
+  }
+
+  renderSearchResults(data);
+}
+
+function renderSearchResults(data) {
+  const stats = document.getElementById('searchStats');
+  const card = document.getElementById('searchResultCard');
+  const tbody = document.getElementById('searchTableBody');
+  const empty = document.getElementById('searchEmpty');
+  const count = document.getElementById('searchCount');
+
+  // إظهار الإحصائيات
+  stats.style.display = 'grid';
+  card.style.display = 'block';
+
+  document.getElementById('srCount').textContent = data.length;
+  document.getElementById('srEGP').textContent = data.reduce((a,s)=>a+(parseFloat(s.egp)||0),0).toFixed(2);
+  document.getElementById('srUSD').textContent = data.reduce((a,s)=>a+(parseFloat(s.usd)||0),0).toFixed(2);
+  document.getElementById('srEUR').textContent = data.reduce((a,s)=>a+(parseFloat(s.eur)||0),0).toFixed(2);
+  document.getElementById('srGBP').textContent = data.reduce((a,s)=>a+(parseFloat(s.gbp)||0),0).toFixed(2);
+
+  count.textContent = `${data.length} نتيجة`;
+
+  if (!data.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = data.slice().reverse().map((s, i) => `
+    <tr>
+      <td style="color:var(--text-dim)">${data.length - i}</td>
+      <td><span class="chip chip-blue">${s.seller || '-'}</span></td>
+      <td style="color:var(--text-dim);font-size:0.8rem">${s.date || '-'}</td>
+      <td><strong>${s.customer || '-'}</strong></td>
+      <td>${s.boat || '-'}</td>
+      <td><span class="chip chip-green">${s.hotel || '-'}</span></td>
+      <td>${s.room || '-'}</td>
+      <td class="amount">${s.egp > 0 ? parseFloat(s.egp).toFixed(2) + ' ج' : '-'}</td>
+      <td class="amount">${s.usd > 0 ? parseFloat(s.usd).toFixed(2) + ' $' : '-'}</td>
+      <td class="amount">${s.eur > 0 ? parseFloat(s.eur).toFixed(2) + ' €' : '-'}</td>
+      <td class="amount">${s.gbp > 0 ? parseFloat(s.gbp).toFixed(2) + ' £' : '-'}</td>
+      <td style="color:var(--text-dim);font-size:0.8rem">${s.email || '-'}</td>
+    </tr>
+  `).join('');
+}
+
+function clearSearch() {
+  document.getElementById('sDateFrom').value = '';
+  document.getElementById('sDateTo').value = '';
+  document.getElementById('sSeller').value = '';
+  document.getElementById('sBoat').value = '';
+  document.getElementById('sHotel').value = '';
+  document.getElementById('sCustomer').value = '';
+  document.getElementById('searchStats').style.display = 'none';
+  document.getElementById('searchResultCard').style.display = 'none';
+}
+
+// ========== CONNECTION ==========
+async function checkConnection() {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  if (!apiUrl) {
+    if(dot) dot.className = 'sync-dot local';
+    if(txt) txt.textContent = 'حفظ محلي فقط';
+    return;
+  }
+  if(txt) txt.textContent = 'جاري الاتصال...';
+  try {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 8000);
+    const r = await fetch(apiUrl + '?test=1', { signal: controller.signal });
+    if(dot) dot.className = 'sync-dot connected';
+    if(txt) txt.textContent = '✅ متصل بـ Google Sheets';
+  } catch {
+    if(dot) dot.className = 'sync-dot error';
+    if(txt) txt.textContent = '⚠️ تعذر الاتصال — البيانات تُحفظ محلياً';
+  }
+}
+
+// ========== LOCAL STORAGE HELPERS ==========
+function getLocal() {
+  return JSON.parse(localStorage.getItem('salesLocal') || '[]');
+}
+function saveLocal(data) {
+  localStorage.setItem('salesLocal', JSON.stringify(data));
+}
+
+// ========== SUBMIT SALE ==========
+function collectFormData() {
+  return {
+    customer: document.getElementById('fCustomer').value.trim(),
+    phone: document.getElementById('fPhone').value.trim(),
+    customerEmail: document.getElementById('fCustomerEmail').value.trim(),
+    boat: document.getElementById('fBoat').value,
+    hotel: document.getElementById('fHotel').value.trim(),
+    room: document.getElementById('fRoom').value.trim(),
+    egp: parseFloat(document.getElementById('fEGP').value) || 0,
+    usd: parseFloat(document.getElementById('fUSD').value) || 0,
+    eur: parseFloat(document.getElementById('fEUR').value) || 0,
+    gbp: parseFloat(document.getElementById('fGBP').value) || 0,
+    notes: document.getElementById('fNotes').value.trim(),
+  };
+}
+
+function validateForm(d) {
+  if (!d.phone) {
+    showToast('⚠️ يرجى إدخال تليفون الزبون', 'error');
+    return false;
+  }
+  return true;
+}
+
+async function submitAndSendReceipt() {
+  const d = collectFormData();
+  if (!validateForm(d)) return;
+
+  const btn = document.getElementById('receiptBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="border-color:rgba(255,255,255,0.3);border-top-color:white;"></div> جاري...';
+
+  const sale = buildSaleObject(d);
+  saveSale(sale); // بدون await — فوري
+
+  // فتح واتساب مباشرة
+  const phone = sale.phone.replace(/[^\d]/g, '');
+  const finalPhone = phone.startsWith('0') ? '20' + phone.slice(1) : phone;
+
+  const prices = [];
+  if (sale.egp > 0) prices.push(`🇪🇬 EGP: ${parseFloat(sale.egp).toFixed(2)}`);
+  if (sale.usd > 0) prices.push(`🇺🇸 USD: $${parseFloat(sale.usd).toFixed(2)}`);
+  if (sale.eur > 0) prices.push(`🇪🇺 EUR: €${parseFloat(sale.eur).toFixed(2)}`);
+  if (sale.gbp > 0) prices.push(`🇬🇧 GBP: £${parseFloat(sale.gbp).toFixed(2)}`);
+
+  const msg =
+`🤿 *HERO DIVING CENTER*
+📞 01140330337
+━━━━━━━━━━━━━━━━━━━━
+🧾 *إيصال بيع | Sales Receipt*
+━━━━━━━━━━━━━━━━━━━━
+📅 Date   : ${sale.date}
+👤 Name   : ${sale.customer || '-'}
+📞 Phone  : ${sale.phone}
+🚢 Boat   : ${sale.boat || '-'}
+🏨 Hotel  : ${sale.hotel || '-'}
+🚪 Room   : ${sale.room || '-'}
+━━━━━━━━━━━━━━━━━━━━
+💰 *Total Payment:*
+${prices.length ? prices.join('\n') : 'To be confirmed'}
+━━━━━━━━━━━━━━━━━━━━
+👨‍💼 Agent : ${sale.seller}
+━━━━━━━━━━━━━━━━━━━━
+_Thank you for choosing Hero Diving Center!_ 🌊🤿`;
+
+  const a = document.createElement('a');
+  a.href = `https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => document.body.removeChild(a), 100);
+  btn.innerHTML = '📱 تسجيل + إرسال واتساب';
+  clearForm();
+  updateMyStats();
+  showToast('✅ تم الحفظ وفتح واتساب!', 'success');
+}
+
+async function submitAndSendReceipt() {
+  const d = collectFormData();
+  if (!validateForm(d)) return;
+
+  const btn = document.getElementById('receiptBtn');
+
+  const sale = buildSaleObject(d);
+  await saveSale(sale);
+
+  // تنظيف رقم التليفون - يقبل كل أرقام العالم
+  let rawPhone = sale.phone || '';
+  // إزالة كل شيء غير أرقام و + و مسافات و - و ( و )
+  let phone = rawPhone.replace(/[^\d+]/g, '');
+  // إذا بدأ بـ 00 حوّله لـ +
+  if (phone.startsWith('00')) phone = '+' + phone.slice(2);
+  // إذا بدأ بـ 0 وليس دولي أضف كود مصر
+  if (phone.startsWith('0') && !phone.startsWith('00')) phone = '20' + phone.slice(1);
+  // إذا لا يوجد + في البداية ولا يبدأ بـ 20 أضف +
+  if (!phone.startsWith('+') && !phone.startsWith('20')) phone = '+' + phone;
+  // إزالة + من البداية للـ wa.me
+  const finalPhone = phone.replace(/^\+/, '');
+
+  // بناء رسالة الإيصال
+  const prices = [];
+  if (sale.egp > 0) prices.push(`🇪🇬 EGP: ${parseFloat(sale.egp).toFixed(2)}`);
+  if (sale.usd > 0) prices.push(`🇺🇸 USD: $${parseFloat(sale.usd).toFixed(2)}`);
+  if (sale.eur > 0) prices.push(`🇪🇺 EUR: €${parseFloat(sale.eur).toFixed(2)}`);
+  if (sale.gbp > 0) prices.push(`🇬🇧 GBP: £${parseFloat(sale.gbp).toFixed(2)}`);
+
+  const msg =
+`🤿 *HERO DIVING CENTER*
+📞 01140330337
+━━━━━━━━━━━━━━━━━━━━
+🧾 *إيصال بيع | Sales Receipt*
+━━━━━━━━━━━━━━━━━━━━
+📅 Date   : ${sale.date}
+👤 Name   : ${sale.customer || '-'}
+📞 Phone  : ${sale.phone}
+🚢 Boat   : ${sale.boat || '-'}
+🏨 Hotel  : ${sale.hotel || '-'}
+🚪 Room   : ${sale.room || '-'}
+━━━━━━━━━━━━━━━━━━━━
+💰 *Total Payment:*
+${prices.length ? prices.join('\n') : 'To be confirmed'}
+━━━━━━━━━━━━━━━━━━━━
+👨‍💼 Agent : ${sale.seller}
+━━━━━━━━━━━━━━━━━━━━
+_Thank you for choosing Hero Diving Center!_ 🌊🤿`;
+
+  // فتح واتساب مباشرة بدون الخروج من البرنامج
+  const waUrl = `https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`;
+  const a = document.createElement('a');
+  a.href = waUrl;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => document.body.removeChild(a), 100);
+
+  btn.disabled = false;
+  btn.innerHTML = '📱 تسجيل + إرسال واتساب';
+  clearForm();
+  updateMyStats();
+  showToast('✅ تم الحفظ وفتح واتساب!', 'success');
+}
+
+function buildSaleObject(d) {
+  const rates = getRates();
+  const picker = document.getElementById('fDatePicker');
+
+  let dateStr, dateISO;
+  if (picker && picker.value) {
+    // تاريخ مختار يدوياً YYYY-MM-DD
+    dateStr = picker.value; // 2026-04-29
+    dateISO = picker.value + 'T12:00:00';
+  } else {
+    // تاريخ اليوم بصيغة YYYY-MM-DD بالتوقيت المحلي
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    dateStr = `${y}-${m}-${day}`;
+    dateISO = dateStr + 'T12:00:00';
+  }
+
+  return {
+    id: Date.now(),
+    seller: currentUser.name,
+    email: currentUser.email || '',
+    date: dateStr,
+    dateISO: dateISO,
+    customer: d.customer,
+    phone: d.phone,
+    customerEmail: d.customerEmail,
+    boat: d.boat, hotel: d.hotel, room: d.room,
+    egp: d.egp, usd: d.usd, eur: d.eur, gbp: d.gbp,
+    notes: d.notes || '',
+    rateUSD: rates.usd,
+    rateEUR: rates.eur,
+    rateGBP: rates.gbp,
+    location: currentUser.location || ''
+  };
+}
+
+function clearForm() {
+  ['fCustomer','fPhone','fCustomerEmail','fHotel','fRoom','fEGP','fUSD','fEUR','fGBP','fNotes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('fBoat').value = '';
+  // إعادة التاريخ لليوم تلقائياً
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  const local = new Date(now.getTime() - offset);
+  const todayISO = local.toISOString().slice(0, 10);
+  if (document.getElementById('fDatePicker')) {
+    document.getElementById('fDatePicker').value = todayISO;
+  }
+}
+
+async function saveSale(sale) {
+  // حفظ محلي فوري
+  const local = getLocal();
+  local.push(sale);
+  saveLocal(local);
+  // إرسال للشيت في الخلفية بدون انتظار
+  if (apiUrl) {
+    fetch(apiUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify(sale),
+      headers: { 'Content-Type': 'text/plain' }
+    }).catch(() => {});
+  }
+}
+
+async function submitSale() {
+  const d = collectFormData();
+
+  // إيميل الزبون مطلوب فقط
+  if (!d.customerEmail) {
+    showToast('⚠️ يرجى إدخال إيميل الزبون', 'error');
+    document.getElementById('fCustomerEmail').focus();
+    document.getElementById('fCustomerEmail').style.borderColor = 'rgba(239,68,68,0.5)';
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.customerEmail)) {
+    showToast('⚠️ إيميل الزبون غير صحيح', 'error');
+    document.getElementById('fCustomerEmail').focus();
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="border-color:rgba(255,255,255,0.3);border-top-color:white;"></div> جاري الحفظ...';
+
+  const sale = buildSaleObject(d);
+  await saveSale(sale);
+
+  btn.disabled = false;
+  btn.innerHTML = '✅ تسجيل بيعة + إيميل زبون';
+  clearForm();
+  updateMyStats();
+  showToast('✅ تم حفظ البيعة بنجاح!', 'success');
+}
+
+// ========== LOAD MY SALES ==========
+async function loadMySales() {
+  const loading = document.getElementById('myLoading');
+  if (loading) loading.style.display = 'flex';
+
+  // عرض البيانات المحلية فوراً
+  const localData = getLocal().filter(s => s.seller === currentUser.name);
+  if (localData.length > 0) {
+    mySalesData = localData;
+    renderMyTable();
+    updateMyStats();
+  }
+
+  // ثم تحديث من Sheets في الخلفية مع timeout
+  if (apiUrl) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000); // 8 ثواني max
+
+      const url = `${apiUrl}?seller=${encodeURIComponent(currentUser.name)}`;
+      const r = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeout);
+
+      const remote = await r.json();
+      if (Array.isArray(remote)) {
+        const remoteIds = remote.map(s => String(s['ID'] || s.id));
+        const localOnly = localData.filter(s => !remoteIds.includes(String(s.id)));
+        mySalesData = [...remote.map(normalizeRow), ...localOnly];
+        renderMyTable();
+        updateMyStats();
+      }
+    } catch(e) {
+      // timeout أو خطأ — نبقى مع البيانات المحلية
+    }
+  }
+
+  if (loading) loading.style.display = 'none';
+}
+
+function normalizeRow(r) {
+  const rawDate = r['التاريخ'] || r.date || '';
+  const rawISO  = r['dateISO']  || r.dateISO  || '';
+
+  // الأولوية: rawDate (التاريخ المحفوظ كـ YYYY-MM-DD)
+  // ثم rawISO (dateISO المحفوظ مع البيعة)
+  const dateStr = extractDateStr(rawDate) || extractDateStr(rawISO);
+
+  return {
+    id: r['ID'] || r.id,
+    seller: r['البائع'] || r.seller || '',
+    email: r['إيميل البائع'] || r['الإيميل'] || r.email || '',
+    date: dateStr,
+    dateISO: rawISO || dateStr,
+    customer: r['اسم الزبون'] || r.customer || '',
+    phone: r['تليفون الزبون'] || r.phone || '',
+    customerEmail: r['إيميل الزبون'] || r.customerEmail || '',
+    boat: r['اسم المركب'] || r.boat || '',
+    hotel: r['الفندق'] || r.hotel || '',
+    room: r['رقم الغرفة'] || r.room || '',
+    egp: parseFloat(r['سعر جنيه'] || r.egp) || 0,
+    usd: parseFloat(r['سعر دولار'] || r.usd) || 0,
+    eur: parseFloat(r['سعر يورو'] || r.eur) || 0,
+    gbp: parseFloat(r['سعر إسترليني'] || r.gbp) || 0,
+    rateUSD: parseFloat(r['rateUSD'] || r.rate_usd) || 0,
+    rateEUR: parseFloat(r['rateEUR'] || r.rate_eur) || 0,
+    rateGBP: parseFloat(r['rateGBP'] || r.rate_gbp) || 0,
+    notes: r['ملاحظات'] || r.notes || '',
+  };
+}
+
+function renderMyTable(data) {
+  const tbody = document.getElementById('myTableBody');
+  const empty = document.getElementById('myEmpty');
+  const countEl = document.getElementById('myResultCount');
+  if (!data) data = mySalesData;
+  const rows = data.slice().reverse();
+
+  if (!rows.length) { tbody.innerHTML=''; empty.style.display='block'; countEl.textContent=''; return; }
+  empty.style.display = 'none';
+  countEl.textContent = `${rows.length} سجل`;
+
+  tbody.innerHTML = rows.map((s, i) => {
+    const totalEGP = calcTotalEGP(s);
+    return `
+    <tr>
+      <td style="color:var(--text-dim)">${rows.length - i}</td>
+      <td style="color:var(--text-dim);font-size:0.8rem">${fmtDate(s.date || s.dateISO)}</td>
+      <td><strong>${s.customer || '-'}</strong></td>
+      <td style="color:var(--accent2)">${s.phone ? `<a href="https://wa.me/${s.phone.replace(/\D/g,'')}" target="_blank" style="color:var(--success);text-decoration:none;">📱 ${s.phone}</a>` : '-'}</td>
+      <td><span class="chip chip-blue">${s.boat || '-'}</span></td>
+      <td><span class="chip chip-green">${s.hotel || '-'}</span></td>
+      <td>${s.room || '-'}</td>
+      <td class="amount">${parseFloat(s.egp) > 0 ? parseFloat(s.egp).toFixed(2) + ' ج' : '-'}</td>
+      <td class="amount">${parseFloat(s.usd) > 0 ? parseFloat(s.usd).toFixed(2) + ' $' : '-'}</td>
+      <td class="amount">${parseFloat(s.eur) > 0 ? parseFloat(s.eur).toFixed(2) + ' €' : '-'}</td>
+      <td class="amount">${parseFloat(s.gbp) > 0 ? parseFloat(s.gbp).toFixed(2) + ' £' : '-'}</td>
+      <td class="amount" style="color:var(--gold);font-weight:800;">${totalEGP > 0 ? totalEGP.toFixed(0) + ' ج' : '-'}</td>
+      <td class="amount" style="color:#10b981;font-weight:800;">${totalEGP > 0 ? (totalEGP * 0.35).toFixed(0) + ' ج' : '-'}</td>
+      <td style="color:var(--text-dim);font-size:0.82rem;max-width:150px;white-space:normal;">${s.notes || '-'}</td>
+    </tr>`;
+  }).join('');
+
+  // تحديث شريط الإجماليات فوق الجدول
+  const mTotEGP = rows.reduce((a,s)=>a+(parseFloat(s.egp)||0),0);
+  const mTotUSD = rows.reduce((a,s)=>a+(parseFloat(s.usd)||0),0);
+  const mTotEUR = rows.reduce((a,s)=>a+(parseFloat(s.eur)||0),0);
+  const mTotGBP = rows.reduce((a,s)=>a+(parseFloat(s.gbp)||0),0);
+  const mTotAll = rows.reduce((a,s)=>a+calcTotalEGP(s),0);
+  if(document.getElementById('myTotEGP')) document.getElementById('myTotEGP').textContent = mTotEGP>0?`🇪🇬 ${mTotEGP.toFixed(0)} ج`:'';
+  if(document.getElementById('myTotUSD')) document.getElementById('myTotUSD').textContent = mTotUSD>0?`🇺🇸 $${mTotUSD.toFixed(0)}`:'';
+  if(document.getElementById('myTotEUR')) document.getElementById('myTotEUR').textContent = mTotEUR>0?`🇪🇺 €${mTotEUR.toFixed(0)}`:'';
+  if(document.getElementById('myTotGBP')) document.getElementById('myTotGBP').textContent = mTotGBP>0?`🇬🇧 £${mTotGBP.toFixed(0)}`:'';
+  if(document.getElementById('myTotAll')) document.getElementById('myTotAll').textContent = mTotAll>0?`إجمالي: ${mTotAll.toFixed(0)} ج`:'';
+  if(document.getElementById('myTotComm')) document.getElementById('myTotComm').textContent = mTotAll>0?`💰 عمولة: ${(mTotAll*0.35).toFixed(0)} ج`:'';
+
+  // صف الإجماليات
+  const USD_RATE = 50, EUR_RATE = 55, GBP_RATE = 63;
+  const totEGP = rows.reduce((a,s)=>a+(parseFloat(s.egp)||0),0);
+  const totUSD = rows.reduce((a,s)=>a+(parseFloat(s.usd)||0),0);
+  const totEUR = rows.reduce((a,s)=>a+(parseFloat(s.eur)||0),0);
+  const totGBP = rows.reduce((a,s)=>a+(parseFloat(s.gbp)||0),0);
+  const totAll = rows.reduce((a,s)=>a+calcTotalEGP(s),0);
+  tbody.innerHTML += `
+    <tr style="background:rgba(59,130,246,0.1);border-top:2px solid var(--accent);font-weight:900;">
+      <td colspan="7" style="text-align:center;color:var(--accent2);font-weight:800;">📊 الإجمالي</td>
+      <td class="amount" style="color:#f59e0b;">${totEGP > 0 ? totEGP.toFixed(2)+' ج' : '-'}</td>
+      <td class="amount" style="color:#3b82f6;">${totUSD > 0 ? totUSD.toFixed(2)+' $' : '-'}</td>
+      <td class="amount" style="color:#10b981;">${totEUR > 0 ? totEUR.toFixed(2)+' €' : '-'}</td>
+      <td class="amount" style="color:#8b5cf6;">${totGBP > 0 ? totGBP.toFixed(2)+' £' : '-'}</td>
+      <td class="amount" style="color:var(--gold);font-size:1rem;">${totAll > 0 ? totAll.toFixed(0)+' ج' : '-'}</td>
+      <td class="amount" style="color:#10b981;font-size:1rem;">${totAll > 0 ? (totAll*0.35).toFixed(0)+' ج' : '-'}</td>
+      <td></td>
+    </tr>`;
+}
+
+// استخراج YYYY-MM-DD من أي صيغة
+function extractDateStr(val) {
+  if (!val) return '';
+  const s = String(val).trim();
+  // YYYY-MM-DD مباشرة أو مع T أو مع مسافة
+  const iso = s.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (iso) return iso[1]; // أول 10 أحرف دائماً YYYY-MM-DD
+  // DD/MM/YYYY
+  const dmy = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+  if (dmy) return `${dmy[3]}-${dmy[2]}-${dmy[1]}`;
+  return '';
+}
+
+function matchDate(sale, dateVal) {
+  if (!dateVal) return true;
+  const d1 = extractDateStr(sale.date);
+  const d2 = extractDateStr(sale.dateISO);
+  return d1 === dateVal || d2 === dateVal;
+}
+
+function filterMyTable() {
+  const dateVal = document.getElementById('myDateFilter').value;
+  let data = mySalesData.slice();
+
+  if (dateVal) {
+    data = data.filter(s => matchDate(s, dateVal));
+  }
+
+  const stats = document.getElementById('myFilterStats');
+  if (dateVal) {
+    const USD_RATE = 50, EUR_RATE = 55, GBP_RATE = 63;
+    stats.style.display = 'grid';
+    document.getElementById('mfsCount').textContent = data.length;
+    document.getElementById('mfsEGP').textContent = data.reduce((a,s)=>a+(parseFloat(s.egp)||0),0).toFixed(2);
+    document.getElementById('mfsUSD').textContent = data.reduce((a,s)=>a+(parseFloat(s.usd)||0),0).toFixed(2);
+    document.getElementById('mfsEUR').textContent = data.reduce((a,s)=>a+(parseFloat(s.eur)||0),0).toFixed(2);
+    document.getElementById('mfsGBP').textContent = data.reduce((a,s)=>a+(parseFloat(s.gbp)||0),0).toFixed(2);
+    const totalEGP = data.reduce((a,s) => a + calcTotalEGP(s), 0);
+    document.getElementById('mfsCommission').textContent = (totalEGP * 0.35).toFixed(0) + ' ج';
+  } else {
+    stats.style.display = 'none';
+  }
+  renderMyTable(data);
+}
+
+function clearMyFilter() {
+  document.getElementById('myDateFilter').value = '';
+  document.getElementById('myFilterStats').style.display = 'none';
+  renderMyTable(mySalesData);
+}
+
+function updateMyStats() {
+  // دالة فارغة — لا نعرض إحصائيات في صفحة التسجيل
+}
+
+
+// ========== LOAD ALL SALES (Admin) ==========
+async function loadAllSales() {
+  const loading = document.getElementById('allLoading');
+  if (loading) loading.style.display = 'flex';
+  let data = getLocal();
+
+  if (apiUrl) {
+    try {
+      const r = await fetch(`${apiUrl}?admin=true`, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-cache',
+      });
+      const remote = await r.json();
+      if (Array.isArray(remote) && remote.length > 0) {
+        data = remote.map(normalizeRow);
+      }
+    } catch(e) {
+      // fetch error suppressed
+      // محاولة ثانية بدون headers
+      try {
+        const r2 = await fetch(`${apiUrl}?admin=true`);
+        const remote2 = await r2.json();
+        if (Array.isArray(remote2) && remote2.length > 0) {
+          data = remote2.map(normalizeRow);
+        }
+      } catch(e2) {
+        // fetch error 2 suppressed
+      }
+    }
+  }
+
+  allSalesData = data;
+  renderAllTable(data);
+  populateAllSellerFilter();
+  if (loading) loading.style.display = 'none';
+  return data;
+}
+
+function renderAllTable(data) {
+  const tbody = document.getElementById('allTableBody');
+  const empty = document.getElementById('allEmpty');
+  const countEl = document.getElementById('allResultCount');
+  const rev = data.slice().reverse();
+
+  if (countEl) countEl.textContent = `${data.length} سجل`;
+  if (!rev.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = rev.map((s, i) => {
+    const totalEGP = calcTotalEGP(s);
+    const commission = totalEGP * 0.35;
+    return `
+    <tr>
+      <td style="color:var(--text-dim)">${rev.length - i}</td>
+      <td><span class="chip chip-blue">${s.seller || '-'}</span></td>
+      <td style="color:var(--text-dim);font-size:0.8rem">${fmtDate(s.date || s.dateISO)}</td>
+      <td><strong>${s.customer || '-'}</strong></td>
+      <td>${s.boat || '-'}</td>
+      <td><span class="chip chip-green">${s.hotel || '-'}</span></td>
+      <td>${s.room || '-'}</td>
+      <td class="amount">${parseFloat(s.egp) > 0 ? parseFloat(s.egp).toFixed(2) + ' ج' : '-'}</td>
+      <td class="amount">${parseFloat(s.usd) > 0 ? '$' + parseFloat(s.usd).toFixed(2) : '-'}</td>
+      <td class="amount">${parseFloat(s.eur) > 0 ? '€' + parseFloat(s.eur).toFixed(2) : '-'}</td>
+      <td class="amount">${parseFloat(s.gbp) > 0 ? '£' + parseFloat(s.gbp).toFixed(2) : '-'}</td>
+      <td class="amount" style="color:var(--gold);font-weight:800;">${totalEGP > 0 ? totalEGP.toFixed(0) + ' ج' : '-'}</td>
+      <td class="amount" style="color:#10b981;font-weight:800;">${commission > 0 ? commission.toFixed(0) + ' ج' : '-'}</td>
+      <td style="color:var(--text-dim);font-size:0.82rem;max-width:150px;white-space:normal;">${s.notes || '-'}</td>
+    </tr>`;
+  }).join('');
+
+  // صف الإجماليات + تحديث الشريط فوق الجدول
+  const totEGP = data.reduce((a,s)=>a+(parseFloat(s.egp)||0),0);
+  const totUSD = data.reduce((a,s)=>a+(parseFloat(s.usd)||0),0);
+  const totEUR = data.reduce((a,s)=>a+(parseFloat(s.eur)||0),0);
+  const totGBP = data.reduce((a,s)=>a+(parseFloat(s.gbp)||0),0);
+  const totAll = data.reduce((a,s)=>a+calcTotalEGP(s),0);
+
+  // تحديث شريط الإجماليات فوق الجدول
+  const bar = document.getElementById('allTotalsBar');
+  if(bar) bar.style.display = 'flex';
+  if(document.getElementById('allTotEGP')) document.getElementById('allTotEGP').textContent = totEGP>0?`🇪🇬 ${totEGP.toFixed(0)} ج`:'';
+  if(document.getElementById('allTotUSD')) document.getElementById('allTotUSD').textContent = totUSD>0?`🇺🇸 $${totUSD.toFixed(0)}`:'';
+  if(document.getElementById('allTotEUR')) document.getElementById('allTotEUR').textContent = totEUR>0?`🇪🇺 €${totEUR.toFixed(0)}`:'';
+  if(document.getElementById('allTotGBP')) document.getElementById('allTotGBP').textContent = totGBP>0?`🇬🇧 £${totGBP.toFixed(0)}`:'';
+  if(document.getElementById('allTotAll')) document.getElementById('allTotAll').textContent = totAll>0?`إجمالي: ${totAll.toFixed(0)} ج`:'';
+  if(document.getElementById('allTotComm')) document.getElementById('allTotComm').textContent = totAll>0?`💰 عمولة: ${(totAll*0.35).toFixed(0)} ج`:'';
+  tbody.innerHTML += `
+    <tr style="background:rgba(59,130,246,0.1);border-top:2px solid var(--accent);font-weight:900;">
+      <td colspan="7" style="text-align:center;color:var(--accent2);font-weight:800;">📊 الإجمالي</td>
+      <td class="amount" style="color:#f59e0b;font-weight:900;">${totEGP > 0 ? totEGP.toFixed(2)+' ج' : '-'}</td>
+      <td class="amount" style="color:#3b82f6;font-weight:900;">${totUSD > 0 ? totUSD.toFixed(2)+' $' : '-'}</td>
+      <td class="amount" style="color:#10b981;font-weight:900;">${totEUR > 0 ? totEUR.toFixed(2)+' €' : '-'}</td>
+      <td class="amount" style="color:#8b5cf6;font-weight:900;">${totGBP > 0 ? totGBP.toFixed(2)+' £' : '-'}</td>
+      <td class="amount" style="color:var(--gold);font-weight:900;font-size:1rem;">${totAll > 0 ? totAll.toFixed(0)+' ج' : '-'}</td>
+      <td class="amount" style="color:#10b981;font-weight:900;font-size:1rem;">${totAll > 0 ? (totAll*0.35).toFixed(0)+' ج' : '-'}</td>
+      <td></td>
+    </tr>`;
+}
+
+function populateAllSellerFilter() {
+  const sel = document.getElementById('allSellerFilter');
+  if (!sel) return;
+  const sellers = [...new Set(allSalesData.map(s => s.seller).filter(Boolean))].sort();
+  const current = sel.value;
+  sel.innerHTML = '<option value="">👤 كل البائعين | All Sellers</option>';
+  sellers.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s;
+    if (s === current) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function filterAllTable() {
+  const seller = document.getElementById('allSellerFilter')?.value || '';
+  const dateVal = document.getElementById('allDateFilter')?.value || '';
+
+  let data = allSalesData.slice();
+  if (seller) data = data.filter(s => s.seller === seller);
+  if (dateVal) data = data.filter(s => matchDate(s, dateVal));
+
+  renderAllTable(data);
+}
+
+function clearAllFilter() {
+  document.getElementById('allSellerFilter').value = '';
+  document.getElementById('allDateFilter').value = '';
+  renderAllTable(allSalesData);
+}
+
+// ========== REPORT DATE FILTER ==========
+let currentReportPeriod = 'all';
+
+function setReportPeriod(period) {
+  currentReportPeriod = period;
+
+  // تحديث الأزرار
+  document.querySelectorAll('.rPeriodBtn').forEach(btn => {
+    btn.style.background = 'var(--bg3)';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--text-dim)';
+  });
+  const activeBtn = document.getElementById('rBtn_' + period);
+  if (activeBtn) {
+    activeBtn.style.background = 'rgba(59,130,246,0.2)';
+    activeBtn.style.borderColor = 'var(--accent)';
+    activeBtn.style.color = 'var(--accent2)';
+  }
+
+  renderReports();
+}
+
+function getFilteredReportData() {
+  const all = allSalesData.length ? allSalesData : getLocal();
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0,10);
+
+  if (currentReportPeriod === 'all') {
+    document.getElementById('rFilterLabel').textContent = `إجمالي: ${all.length} سجل`;
+    return all;
+  }
+
+  if (currentReportPeriod === 'today') {
+    const filtered = all.filter(s => matchDate(s, todayStr));
+    document.getElementById('rFilterLabel').textContent = `اليوم: ${filtered.length} سجل`;
+    return filtered;
+  }
+
+  if (currentReportPeriod === 'week') {
+    const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
+    const weekAgoStr = weekAgo.toISOString().slice(0,10);
+    const filtered = all.filter(s => {
+      const sDate = extractDateStr(s.date) || extractDateStr(s.dateISO);
+      return sDate >= weekAgoStr;
+    });
+    document.getElementById('rFilterLabel').textContent = `آخر 7 أيام: ${filtered.length} سجل`;
+    return filtered;
+  }
+
+  if (currentReportPeriod === 'month') {
+    const filtered = all.filter(s => {
+      const sDate = extractDateStr(s.date) || extractDateStr(s.dateISO);
+      return sDate && sDate.slice(0,7) === todayStr.slice(0,7);
+    });
+    document.getElementById('rFilterLabel').textContent = `هذا الشهر: ${filtered.length} سجل`;
+    return filtered;
+  }
+
+  if (currentReportPeriod === 'custom') {
+    const dateVal = document.getElementById('rDateFilter').value;
+    if (!dateVal) return all;
+    const filtered = all.filter(s => matchDate(s, dateVal));
+    document.getElementById('rFilterLabel').textContent = `${dateVal}: ${filtered.length} سجل`;
+    return filtered;
+  }
+
+  return all;
+}
+
+
+function renderReports() {
+  const data = getFilteredReportData();
+
+  document.getElementById('rCount').textContent = data.length;
+  document.getElementById('rSellers').textContent = new Set(data.map(s=>s.seller).filter(Boolean)).size;
+  document.getElementById('rEGP').textContent = data.reduce((a,s)=>a+(parseFloat(s.egp)||0),0).toFixed(0);
+  document.getElementById('rUSD').textContent = data.reduce((a,s)=>a+(parseFloat(s.usd)||0),0).toFixed(0);
+  document.getElementById('rEUR').textContent = data.reduce((a,s)=>a+(parseFloat(s.eur)||0),0).toFixed(0);
+  document.getElementById('rGBP').textContent = data.reduce((a,s)=>a+(parseFloat(s.gbp)||0),0).toFixed(0);
+
+  const grandTotal = data.reduce((a,s) => a + calcTotalEGP(s), 0);
+  document.getElementById('rTotalEGP').textContent = grandTotal.toFixed(0) + ' ج';
+  document.getElementById('rCommission').textContent = (grandTotal * 0.35).toFixed(0) + ' ج';
+
+  // بيانات البائعين
+  const sellerMap = {};
+  data.forEach(s => {
+    if (!s.seller) return;
+    if (!sellerMap[s.seller]) sellerMap[s.seller] = {count:0, egp:0, usd:0, eur:0, gbp:0};
+    sellerMap[s.seller].count++;
+    sellerMap[s.seller].egp += parseFloat(s.egp)||0;
+    sellerMap[s.seller].usd += parseFloat(s.usd)||0;
+    sellerMap[s.seller].eur += parseFloat(s.eur)||0;
+    sellerMap[s.seller].gbp += parseFloat(s.gbp)||0;
+  });
+
+  const boatMap = {};
+  data.forEach(s => { if (s.boat) boatMap[s.boat] = (boatMap[s.boat]||0) + 1; });
+
+  const dailyMap = {};
+  data.forEach(s => {
+    const d = s.dateISO ? s.dateISO.slice(0,10) : (s.date||'').slice(0,10);
+    if (d) dailyMap[d] = (dailyMap[d]||0) + 1;
+  });
+
+  const colors = ['#3b82f6','#60a5fa','#f59e0b','#10b981','#8b5cf6','#ef4444'];
+  const sellers = Object.entries(sellerMap).sort((a,b)=>b[1].count-a[1].count);
+
+  mkChart('cSeller','bar', sellers.map(s=>s[0]), sellers.map(s=>s[1].count), colors, 'عدد المبيعات');
+  mkChart('cBoat','doughnut', Object.keys(boatMap), Object.values(boatMap), colors);
+  const dk = Object.keys(dailyMap).sort();
+  mkChart('cDaily','line', dk, dk.map(k=>dailyMap[k]), colors, 'المبيعات');
+
+  // جدول ترتيب البائعين مع الإجمالي والعمولة
+  document.getElementById('leaderBody').innerHTML = sellers.map(([name,d],i) => {
+    // نحسب إجمالي الجنيه لكل بائع باستخدام أسعار البيعة المحفوظة
+    const sellerData = data.filter(s => s.seller === name);
+    const total = sellerData.reduce((a,s) => a + calcTotalEGP(s), 0);
+    const comm = total * 0.35;
+    return `
+    <tr>
+      <td>${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</td>
+      <td><span class="chip chip-blue">${name}</span></td>
+      <td><strong>${d.count}</strong></td>
+      <td class="amount">${d.egp > 0 ? d.egp.toFixed(0)+' ج' : '-'}</td>
+      <td class="amount">${d.usd > 0 ? '$'+d.usd.toFixed(0) : '-'}</td>
+      <td class="amount">${d.eur > 0 ? '€'+d.eur.toFixed(0) : '-'}</td>
+      <td class="amount">${d.gbp > 0 ? '£'+d.gbp.toFixed(0) : '-'}</td>
+      <td class="amount" style="color:var(--gold);font-weight:800;">${total > 0 ? total.toFixed(0)+' ج' : '-'}</td>
+      <td class="amount" style="color:#10b981;font-weight:800;">${comm > 0 ? comm.toFixed(0)+' ج' : '-'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function mkChart(id, type, labels, data, colors, label) {
+  if (charts[id]) charts[id].destroy();
+  const ctx = document.getElementById(id)?.getContext('2d');
+  if (!ctx) return;
+  charts[id] = new Chart(ctx, {
+    type,
+    data: {
+      labels,
+      datasets: [{
+        label: label||'',
+        data,
+        backgroundColor: type==='line' ? 'rgba(59,130,246,0.15)' : colors,
+        borderColor: type==='line' ? '#3b82f6' : colors,
+        borderWidth: type==='line' ? 2 : 0,
+        fill: type==='line',
+        tension: 0.4,
+        pointBackgroundColor: '#3b82f6',
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: type==='doughnut', labels: { color:'#e2e8f0', font:{family:'Tajawal'} } }
+      },
+      scales: type!=='doughnut' ? {
+        x: { ticks:{color:'#64748b',font:{family:'Tajawal'}}, grid:{color:'rgba(255,255,255,0.04)'} },
+        y: { ticks:{color:'#64748b',font:{family:'Tajawal'}}, grid:{color:'rgba(255,255,255,0.04)'} }
+      } : {}
+    }
+  });
+}
+
+// ========== SEARCH FUNCTIONS ==========
+function populateSellerFilter() {
+  const sel = document.getElementById('sSeller');
+  const sellers = [...new Set(allSalesData.map(s => s.seller).filter(Boolean))];
+  sel.innerHTML = '<option value="">كل البائعين</option>';
+  sellers.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s;
+    sel.appendChild(opt);
+  });
+}
+
+function runSearch() {
+  const dateVal = document.getElementById('sDate').value;
+  const seller = document.getElementById('sSeller').value;
+  const boat = document.getElementById('sBoat').value;
+  const hotel = document.getElementById('sHotel').value.trim().toLowerCase();
+  const customer = document.getElementById('sCustomer').value.trim().toLowerCase();
+
+  let data = allSalesData.slice();
+
+  if (dateVal) data = data.filter(s => matchDate(s, dateVal));
+  if (seller) data = data.filter(s => s.seller === seller);
+  if (boat) data = data.filter(s => s.boat === boat);
+  if (hotel) data = data.filter(s => (s.hotel||'').toLowerCase().includes(hotel));
+  if (customer) data = data.filter(s => (s.customer||'').toLowerCase().includes(customer));
+
+  renderSearchResults(data);
+}
+
+function renderSearchResults(data) {
+  const stats = document.getElementById('searchStats');
+  const card = document.getElementById('searchResultCard');
+  const tbody = document.getElementById('searchTableBody');
+  const empty = document.getElementById('searchEmpty');
+  const count = document.getElementById('searchCount');
+
+  stats.style.display = 'grid';
+  card.style.display = 'block';
+
+  const USD_RATE = 50, EUR_RATE = 55, GBP_RATE = 63;
+
+  document.getElementById('srCount').textContent = data.length;
+  document.getElementById('srEGP').textContent = data.reduce((a,s)=>a+(parseFloat(s.egp)||0),0).toFixed(2);
+  document.getElementById('srUSD').textContent = data.reduce((a,s)=>a+(parseFloat(s.usd)||0),0).toFixed(2);
+  document.getElementById('srEUR').textContent = data.reduce((a,s)=>a+(parseFloat(s.eur)||0),0).toFixed(2);
+  document.getElementById('srGBP').textContent = data.reduce((a,s)=>a+(parseFloat(s.gbp)||0),0).toFixed(2);
+
+  const grandTotal = data.reduce((a,s) => a + calcTotalEGP(s), 0);
+
+  document.getElementById('srTotalEGP').textContent = grandTotal.toFixed(0) + ' ج';
+  document.getElementById('srCommission').textContent = (grandTotal * 0.35).toFixed(0) + ' ج';
+  count.textContent = `${data.length} نتيجة`;
+
+  if (!data.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = data.slice().reverse().map((s,i) => {
+    const totalEGP = calcTotalEGP(s);
+    return `
+    <tr>
+      <td style="color:var(--text-dim)">${data.length-i}</td>
+      <td><span class="chip chip-blue">${s.seller||'-'}</span></td>
+      <td style="font-size:0.8rem;color:var(--text-dim)">${fmtDate(s.date || s.dateISO)}</td>
+      <td><strong>${s.customer||'-'}</strong></td>
+      <td>${s.phone?`<a href="https://wa.me/${s.phone.replace(/\D/g,'')}" target="_blank" style="color:var(--success);text-decoration:none;">📱 ${s.phone}</a>`:'-'}</td>
+      <td><span class="chip chip-blue">${s.boat||'-'}</span></td>
+      <td><span class="chip chip-green">${s.hotel||'-'}</span></td>
+      <td>${s.room||'-'}</td>
+      <td class="amount">${parseFloat(s.egp)>0?parseFloat(s.egp).toFixed(2)+' ج':'-'}</td>
+      <td class="amount">${parseFloat(s.usd)>0?'$'+parseFloat(s.usd).toFixed(2):'-'}</td>
+      <td class="amount">${parseFloat(s.eur)>0?'€'+parseFloat(s.eur).toFixed(2):'-'}</td>
+      <td class="amount">${parseFloat(s.gbp)>0?'£'+parseFloat(s.gbp).toFixed(2):'-'}</td>
+      <td class="amount" style="color:var(--gold);font-weight:800;">${totalEGP>0?totalEGP.toFixed(0)+' ج':'-'}</td>
+      <td class="amount" style="color:#10b981;font-weight:800;">${totalEGP>0?(totalEGP*0.35).toFixed(0)+' ج':'-'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function clearSearch() {
+  document.getElementById('sDate').value = '';
+  document.getElementById('sSeller').value = '';
+  document.getElementById('sBoat').value = '';
+  document.getElementById('sHotel').value = '';
+  document.getElementById('sCustomer').value = '';
+  document.getElementById('searchStats').style.display = 'none';
+  document.getElementById('searchResultCard').style.display = 'none';
+}
+
+function clearStatsFilter() {
+  document.getElementById('stDateFilter').value = '';
+  renderStats();
+}
+
+// ========== SETTINGS ==========
+function clearLocalData() {
+  if (!confirm('هل أنت متأكد؟ سيتم مسح البيانات المؤقتة من المتصفح فقط.\nالبيانات في Google Sheets ستبقى سليمة.')) return;
+  // امسح فقط البيانات المحلية — لا تمسح الإعدادات
+  localStorage.removeItem('salesLocal');
+  allSalesData = [];
+  mySalesData = [];
+  showToast('✅ تم مسح البيانات المحلية بنجاح!', 'success');
+}
+
+function clearLocalData() {
+  if (!confirm('هل أنت متأكد؟ سيتم مسح البيانات المحلية من المتصفح فقط.')) return;
+  localStorage.removeItem('salesLocal');
+  mySalesData = [];
+  allSalesData = [];
+  showToast('✅ تم مسح البيانات المحلية بنجاح', 'success');
+}
+
+function saveSettings() {
+  if (!isAdmin) { showToast('⚠️ للأدمن فقط', 'error'); return; }
+  const url = document.getElementById('settingsUrlEdit').value.trim();
+  apiUrl = url || FIXED_API_URL;
+  localStorage.setItem('apiUrl', apiUrl);
+  const masked = apiUrl ? apiUrl.slice(0, 40) + '...' : '';
+  document.getElementById('settingsUrl').value = masked;
+  checkConnection();
+  showToast('✅ تم حفظ الإعدادات', 'success');
+}
+
+function changeAdminPass() {
+  const old = document.getElementById('oldPass').value;
+  const newP = document.getElementById('newPass').value;
+  const stored = localStorage.getItem(ADMIN_PASS_KEY) || 'admin123';
+  if (old !== stored) { showToast('كلمة المرور الحالية غير صحيحة', 'error'); return; }
+  if (!newP || newP.length < 4) { showToast('كلمة المرور الجديدة قصيرة جداً', 'error'); return; }
+  localStorage.setItem(ADMIN_PASS_KEY, newP);
+  document.getElementById('oldPass').value = '';
+  document.getElementById('newPass').value = '';
+  showToast('✅ تم تغيير كلمة المرور', 'success');
+}
+
+// ========== EXCHANGE RATES ==========
+// أسعار الصرف الافتراضية
+const DEFAULT_RATES = { usd: 50, eur: 55, gbp: 63 };
+
+function getRates() {
+  const saved = localStorage.getItem('exchangeRates');
+  if (saved) {
+    try { return JSON.parse(saved); } catch(e) {}
+  }
+  return DEFAULT_RATES;
+}
+
+function saveRates() {
+  if (!isAdmin) { showToast('⚠️ للأدمن فقط', 'error'); return; }
+  const usd = parseFloat(document.getElementById('rateUSD').value) || DEFAULT_RATES.usd;
+  const eur = parseFloat(document.getElementById('rateEUR').value) || DEFAULT_RATES.eur;
+  const gbp = parseFloat(document.getElementById('rateGBP').value) || DEFAULT_RATES.gbp;
+  const rates = { usd, eur, gbp };
+  localStorage.setItem('exchangeRates', JSON.stringify(rates));
+  updateRatesPreview(rates);
+  showToast(`✅ تم حفظ الأسعار: $${usd} | €${eur} | £${gbp}`, 'success');
+}
+
+function loadRatesUI() {
+  const r = getRates();
+  document.getElementById('rateUSD').value = r.usd;
+  document.getElementById('rateEUR').value = r.eur;
+  document.getElementById('rateGBP').value = r.gbp;
+  updateRatesPreview(r);
+}
+
+function updateRatesPreview(r) {
+  document.getElementById('previewUSD').textContent = r.usd;
+  document.getElementById('previewEUR').textContent = r.eur;
+  document.getElementById('previewGBP').textContent = r.gbp;
+}
+
+// دالة حساب الإجمالي بالجنيه - تستخدم أسعار البيعة أو الحالية
+function calcTotalEGP(s) {
+  // إذا البيعة محفوظة بأسعار صرف خاصة بها
+  const usdRate = parseFloat(s.rateUSD) || getRates().usd;
+  const eurRate = parseFloat(s.rateEUR) || getRates().eur;
+  const gbpRate = parseFloat(s.rateGBP) || getRates().gbp;
+  return (parseFloat(s.egp)||0) +
+         (parseFloat(s.usd)||0) * usdRate +
+         (parseFloat(s.eur)||0) * eurRate +
+         (parseFloat(s.gbp)||0) * gbpRate;
+}
+
+
+// ========== PDF EXPORT ==========
+function getPDFData(type) {
+  if (type === 'my') return mySalesData;
+  const seller = document.getElementById('allSellerFilter')?.value || '';
+  const dateVal = document.getElementById('allDateFilter')?.value || '';
+  let data = allSalesData.slice();
+  if (seller) data = data.filter(s => s.seller === seller);
+  if (dateVal) data = data.filter(s => matchDate(s, dateVal));
+  return data;
+}
+
+function exportPDF(type) {
+  const data = getPDFData(type);
+  if (!data.length) { showToast('⚠️ لا توجد بيانات', 'error'); return; }
+
+  const title = type === 'my' ? `مبيعاتي — ${currentUser.name}` : 'كل المبيعات';
+  const today = new Date().toLocaleDateString('ar-EG');
+  const totEGP = data.reduce((a,s)=>a+(parseFloat(s.egp)||0),0);
+  const totUSD = data.reduce((a,s)=>a+(parseFloat(s.usd)||0),0);
+  const totEUR = data.reduce((a,s)=>a+(parseFloat(s.eur)||0),0);
+  const totGBP = data.reduce((a,s)=>a+(parseFloat(s.gbp)||0),0);
+  const totAll = data.reduce((a,s)=>a+calcTotalEGP(s),0);
+
+  const rows = data.slice().reverse().map((s,i) => {
+    const tot = calcTotalEGP(s);
+    return `<tr>
+      <td>${i+1}</td>
+      ${type==='all'?`<td>${s.seller||'-'}</td>`:''}
+      <td>${fmtDate(s.date||s.dateISO)}</td>
+      <td>${s.customer||'-'}</td>
+      <td>${s.phone||'-'}</td>
+      <td>${s.boat||'-'}</td>
+      <td>${s.hotel||'-'}</td>
+      <td>${parseFloat(s.egp)>0?parseFloat(s.egp).toFixed(2)+' ج':'-'}</td>
+      <td>${parseFloat(s.usd)>0?'$'+parseFloat(s.usd).toFixed(2):'-'}</td>
+      <td>${parseFloat(s.eur)>0?'€'+parseFloat(s.eur).toFixed(2):'-'}</td>
+      <td>${parseFloat(s.gbp)>0?'£'+parseFloat(s.gbp).toFixed(2):'-'}</td>
+      <td>${tot>0?tot.toFixed(0)+' ج':'-'}</td>
+      <td>${tot>0?(tot*0.35).toFixed(0)+' ج':'-'}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html dir="rtl"><head><meta charset="UTF-8"><title>${title}</title>
+<style>
+  body{font-family:Arial,sans-serif;font-size:11px;margin:20px;direction:rtl;}
+  h2{color:#1e40af;text-align:center;margin-bottom:5px;}
+  .sub{text-align:center;color:#666;margin-bottom:15px;font-size:10px;}
+  table{width:100%;border-collapse:collapse;margin-top:10px;}
+  th{background:#1e40af;color:white;padding:6px 4px;text-align:center;font-size:10px;}
+  td{padding:5px 4px;border:1px solid #ddd;text-align:center;}
+  tr:nth-child(even){background:#f0f4ff;}
+  .total-row{background:#1e40af!important;color:white;font-weight:bold;}
+  .total-row td{color:white;border-color:#1e40af;}
+  .summary{margin-top:15px;padding:10px;background:#f0f4ff;border-radius:8px;}
+  .summary h3{margin:0 0 8px;color:#1e40af;font-size:12px;}
+  .sg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .si{background:white;padding:8px;border-radius:6px;text-align:center;}
+  .si .val{font-size:14px;font-weight:bold;color:#1e40af;}
+  .si .lbl{font-size:9px;color:#666;}
+  @media print{button{display:none;}}
+</style></head><body>
+  <h2>🤿 HERO DIVING CENTER — ${title}</h2>
+  <div class="sub">تاريخ التقرير: ${today} | عدد السجلات: ${data.length}</div>
+  <div class="summary">
+    <h3>📊 ملخص الإجماليات</h3>
+    <div class="sg">
+      <div class="si"><div class="val">${totEGP.toFixed(0)} ج</div><div class="lbl">🇪🇬 جنيه</div></div>
+      <div class="si"><div class="val">$${totUSD.toFixed(0)}</div><div class="lbl">🇺🇸 دولار</div></div>
+      <div class="si"><div class="val">€${totEUR.toFixed(0)}</div><div class="lbl">🇪🇺 يورو</div></div>
+      <div class="si"><div class="val">£${totGBP.toFixed(0)}</div><div class="lbl">🇬🇧 إسترليني</div></div>
+      <div class="si"><div class="val">${totAll.toFixed(0)} ج</div><div class="lbl">🇪🇬 إجمالي بالجنيه</div></div>
+      <div class="si"><div class="val">${(totAll*0.35).toFixed(0)} ج</div><div class="lbl">💰 عمولة 35%</div></div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>#</th>${type==='all'?'<th>البائع</th>':''}<th>التاريخ</th><th>الزبون</th><th>التليفون</th><th>المركب</th><th>الفندق</th><th>جنيه</th><th>دولار</th><th>يورو</th><th>إسترليني</th><th>إجمالي ج</th><th>عمولة 35%</th></tr></thead>
+    <tbody>${rows}</tbody>
+    <tr class="total-row">
+      <td colspan="${type==='all'?6:5}">📊 الإجمالي</td>
+      <td>${totEGP.toFixed(0)} ج</td><td>$${totUSD.toFixed(0)}</td>
+      <td>€${totEUR.toFixed(0)}</td><td>£${totGBP.toFixed(0)}</td>
+      <td>${totAll.toFixed(0)} ج</td><td>${(totAll*0.35).toFixed(0)} ج</td>
+    </tr>
+  </table>
+  <script>window.onload=()=>window.print();<\/script>
+</body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  showToast('✅ جاري فتح PDF للطباعة...', 'success');
+}
+
+function sendPDFWhatsApp(type) {
+  const data = getPDFData(type);
+  if (!data.length) { showToast('⚠️ لا توجد بيانات', 'error'); return; }
+
+  const totEGP = data.reduce((a,s)=>a+(parseFloat(s.egp)||0),0);
+  const totUSD = data.reduce((a,s)=>a+(parseFloat(s.usd)||0),0);
+  const totEUR = data.reduce((a,s)=>a+(parseFloat(s.eur)||0),0);
+  const totGBP = data.reduce((a,s)=>a+(parseFloat(s.gbp)||0),0);
+  const totAll = data.reduce((a,s)=>a+calcTotalEGP(s),0);
+  const today = new Date().toLocaleDateString('ar-EG');
+  const title = type === 'my' ? `مبيعاتي — ${currentUser.name}` : 'كل المبيعات';
+
+  const rows = data.slice().reverse().map((s,i) => {
+    const tot = calcTotalEGP(s);
+    const prices = [];
+    if (parseFloat(s.egp)>0) prices.push(`${parseFloat(s.egp).toFixed(0)}ج`);
+    if (parseFloat(s.usd)>0) prices.push(`$${parseFloat(s.usd).toFixed(0)}`);
+    if (parseFloat(s.eur)>0) prices.push(`€${parseFloat(s.eur).toFixed(0)}`);
+    if (parseFloat(s.gbp)>0) prices.push(`£${parseFloat(s.gbp).toFixed(0)}`);
+    return `${i+1}. ${s.customer||'-'} | ${fmtDate(s.date||s.dateISO)} | ${s.boat||'-'} | ${prices.join('+')} | ${tot.toFixed(0)}ج`;
+  }).join('\n');
+
+  const msg =
+`🤿 *HERO DIVING CENTER*
+📊 *تقرير ${title}*
+📅 ${today} | ${data.length} سجل
+━━━━━━━━━━━━━━━━━━━━
+${rows}
+━━━━━━━━━━━━━━━━━━━━
+💰 *الإجماليات:*
+🇪🇬 جنيه: ${totEGP.toFixed(0)} ج
+🇺🇸 دولار: $${totUSD.toFixed(0)}
+🇪🇺 يورو: €${totEUR.toFixed(0)}
+🇬🇧 إسترليني: £${totGBP.toFixed(0)}
+🇪🇬 إجمالي: ${totAll.toFixed(0)} ج
+💰 عمولة 35%: ${(totAll*0.35).toFixed(0)} ج`;
+
+  const a = document.createElement('a');
+  a.href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => document.body.removeChild(a), 100);
+  showToast('✅ جاري فتح واتساب...', 'success');
+}
+
+function exportToExcel() {
+  const seller = document.getElementById('allSellerFilter')?.value || '';
+  const dateVal = document.getElementById('allDateFilter')?.value || '';
+  let data = allSalesData.slice();
+  if (seller) data = data.filter(s => s.seller === seller);
+  if (dateVal) data = data.filter(s => matchDate(s, dateVal));
+
+  if (!data.length) { showToast('⚠️ لا توجد بيانات للتصدير', 'error'); return; }
+
+  showToast('⏳ جاري إنشاء ملف Excel...', 'success');
+
+  // تحميل مكتبة SheetJS
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  script.onload = () => generateExcel(data, seller, dateVal);
+  script.onerror = () => showToast('❌ تعذر تحميل مكتبة Excel', 'error');
+  document.head.appendChild(script);
+}
+
+function generateExcel(data, seller, dateVal) {
+  const USD_RATE = 50, EUR_RATE = 55, GBP_RATE = 63;
+  const rows = data.slice().reverse().map((s, i) => {
+    const totalEGP = (parseFloat(s.egp)||0) +
+                     (parseFloat(s.usd)||0) * USD_RATE +
+                     (parseFloat(s.eur)||0) * EUR_RATE +
+                     (parseFloat(s.gbp)||0) * GBP_RATE;
+    return {
+      '#': i + 1,
+      'التاريخ': s.date || '',
+      'البائع': s.seller || '',
+      'اسم الزبون': s.customer || '',
+      'التليفون': s.phone || '',
+      'المركب': s.boat || '',
+      'الفندق': s.hotel || '',
+      'رقم الغرفة': s.room || '',
+      'جنيه EGP': parseFloat(s.egp) || 0,
+      'دولار USD': parseFloat(s.usd) || 0,
+      'يورو EUR': parseFloat(s.eur) || 0,
+      'إسترليني GBP': parseFloat(s.gbp) || 0,
+      'إجمالي جنيه': Math.round(totalEGP),
+      'عمولة 35%': Math.round(totalEGP * 0.35),
+      'إيميل البائع': s.email || ''
+    };
+  });
+
+  const ws = XLSX.utils.json_to_sheet(rows);
+
+  // ضبط عرض الأعمدة تلقائياً
+  ws['!cols'] = [
+    {wch:5},{wch:12},{wch:15},{wch:20},{wch:16},
+    {wch:14},{wch:20},{wch:12},
+    {wch:12},{wch:12},{wch:12},{wch:14},
+    {wch:14},{wch:12},{wch:25}
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Sales');
+
+  const today = new Date().toISOString().slice(0, 10);
+  const fileName = `Sales_${today}${seller ? '_' + seller : ''}.xlsx`;
+  XLSX.writeFile(wb, fileName);
+
+  showToast(`✅ تم تصدير ${data.length} سجل إلى Excel!`, 'success');
+}
+
+// ========== UTILS ==========
+function fmtDate(val) {
+  if (!val) return '-';
+  // استخرج YYYY-MM-DD أولاً بدون UTC shift
+  const dateStr = extractDateStr(val);
+  if (!dateStr) return String(val).trim();
+  const [y, m, d] = dateStr.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+// ========== PWA Service Worker ==========
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('SW registered'))
+      .catch(err => console.log('SW error:', err));
+  });
+}
+
+// زر تثبيت التطبيق
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // أظهر زر التثبيت
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = 'flex';
+});
+
+function installApp() {
+  if (!deferredPrompt) {
+    showToast('التطبيق مثبت بالفعل أو غير متاح على هذا المتصفح', 'error');
+    return;
+  }
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(result => {
+    if (result.outcome === 'accepted') {
+      showToast('✅ تم تثبيت التطبيق بنجاح!', 'success');
+    }
+    deferredPrompt = null;
+    const btn = document.getElementById('installBtn');
+    if (btn) btn.style.display = 'none';
+  });
+}
+
+window.addEventListener('appinstalled', () => {
+  showToast('✅ تم تثبيت Daily Photographer Sales!', 'success');
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = 'none';
+});
+
+// ========== AUTO LOGIN ==========
+window.addEventListener('DOMContentLoaded', function() {
+  const saved = localStorage.getItem('savedSeller');
+  if (saved) {
+    try {
+      const user = JSON.parse(saved);
+      if (user.name && user.email) {
+        currentUser = { name: user.name, email: user.email, location: '' };
+        isAdmin = false;
+        apiUrl = FIXED_API_URL;
+        startApp();
+        return;
+      }
+    } catch(e) {}
+  }
+  const saved2 = localStorage.getItem('savedSeller');
+  if (saved2) {
+    try {
+      const u = JSON.parse(saved2);
+      if (document.getElementById('inputSeller')) document.getElementById('inputSeller').value = u.name || '';
+      if (document.getElementById('inputEmail')) document.getElementById('inputEmail').value = u.email || '';
+    } catch(e) {}
+  }
+});
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type}`;
+  void t.offsetWidth;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
