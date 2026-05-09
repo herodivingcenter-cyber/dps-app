@@ -2,8 +2,8 @@
   "name": "Daily Photographer Sales",
   "short_name": "DPS",
   "description": "Hero Diving Center - Daily Sales System",
-  "start_url": "/sales-Photographer/",
-  "scope": "/sales-Photographer/",
+  "start_url": "/dps-app/",
+  "scope": "/dps-app/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0a0f1e",
@@ -22,13 +22,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "screenshot.png",
-      "sizes": "390x844",
-      "type": "image/png"
     }
   ]
 }
